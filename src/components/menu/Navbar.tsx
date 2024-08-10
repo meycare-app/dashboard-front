@@ -1,10 +1,10 @@
 'use client'
 
-import logo from "@/assets/logo.svg"
-import MenuIcon from "@mui/icons-material/Menu"
-import Image from "next/image"
-import Sidebar from "./Sidebar"
-import { useState } from "react"
+import logo from '@/assets/logo.svg'
+import MenuIcon from '@mui/icons-material/Menu'
+import Image from 'next/image'
+import Sidebar from './Sidebar'
+import { useState } from 'react'
 
 export default function Appbar() {
   const [sideBarOpen, setSideBarOpen] = useState(false)
