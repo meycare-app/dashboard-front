@@ -9,14 +9,14 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
     <div
       className={`${open ? 'translate-x-0' : '-translate-x-full'} absolute left-0 top-0 z-50 flex min-h-screen w-64 flex-col transition-transform duration-300 ease-in-out`}
     >
-      <header className="flex items-center justify-between bg-[#B6821C] px-6 py-3">
+      <div className="flex items-center justify-between bg-[#B6821C] px-6 py-3">
         <Image src={logo} alt="Logo" width={107} />
 
         <CloseIcon
           onClick={() => setOpen(false)}
           className="cursor-pointer text-white"
         />
-      </header>
+      </div>
 
       <div className="bg-white py-10">
         <nav className="flex flex-col px-2">
