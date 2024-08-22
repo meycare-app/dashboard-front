@@ -1,4 +1,4 @@
-import Appbar from '@/components/menu/Navbar'
+import Appbar from "@/components/menu/Navbar";
 
 export default function Home() {
   return (
@@ -6,5 +6,5 @@ export default function Home() {
       <Appbar />
       <h1>Sistema de Pontos</h1>
     </main>
-  )
+  );
 }
