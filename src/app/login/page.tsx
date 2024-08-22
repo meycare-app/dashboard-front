@@ -1,5 +1,5 @@
 import LogoBar from "@/components/LogoBar";
-import Login from "./Login";
+import Login from "../../components/auth/Login";
 
 export default function LoginPage() {
   return (
