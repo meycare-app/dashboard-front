@@ -3,6 +3,7 @@ import logo from '@/assets/logo.svg'
 import Link from 'next/link'
 import { SidebarProps } from './types'
 import CloseIcon from '@mui/icons-material/Close'
+import { IconButton } from '@mui/material'
 
 export default function Sidenav({ open, setOpen }: SidebarProps) {
   return (
@@ -12,10 +13,12 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
       <div className="flex items-center justify-between bg-[#B6821C] px-6 py-3">
         <Image src={logo} alt="Logo" width={107} />
 
-        <CloseIcon
-          onClick={() => setOpen(false)}
-          className="cursor-pointer text-white"
-        />
+        <IconButton>
+          <CloseIcon
+            onClick={() => setOpen(false)}
+            className="cursor-pointer text-white"
+          />
+        </IconButton>
       </div>
 
       <div className="bg-white py-10">
