@@ -37,7 +37,7 @@ export default function Dashboard() {
         <h1 className="mb-2 text-4xl">Dashboard</h1>
         <Divider />
 
-        <div className="mt-8">
+        <div className="mt-10">
           <header>
             <div className="flex justify-between">
               <span className="flex items-center gap-1 md:gap-4">
