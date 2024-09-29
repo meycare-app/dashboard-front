@@ -21,7 +21,7 @@ export default function RootLayout({
       <head>
         <title>Sistema de Indicação</title>
       </head>
-      <body>
+      <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           {children}

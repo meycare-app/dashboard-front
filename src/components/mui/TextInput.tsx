@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -39,32 +39,35 @@ interface CustomTextFieldProps {
   loading?: boolean;
   icon?: React.ReactNode;
   textFieldProps?: TextFieldProps;
-  label: string;
+  label?: string;
+  placeholder?: string;
 }
 
-const TextInput: React.FC<CustomTextFieldProps> = ({
-  loading,
-  icon,
-  textFieldProps,
-  label,
-}) => {
-  return (
-    <CustomTextField
-      {...textFieldProps}
-      label={label}
-      InputProps={{
-        ...textFieldProps?.InputProps,
-        startAdornment: icon ? (
-          <div style={{ marginRight: 8 }}>{icon}</div>
-        ) : null,
-        endAdornment: loading ? (
-          <CircularProgress size={24} />
-        ) : (
-          textFieldProps?.InputProps?.endAdornment
-        ),
-      }}
-    />
-  );
-};
+const TextInput = forwardRef<HTMLInputElement, CustomTextFieldProps>(
+  ({ loading, icon, textFieldProps, label, placeholder }, ref) => {
+    return (
+      <CustomTextField
+        {...textFieldProps}
+        label={label}
+        placeholder={placeholder}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        InputProps={{
+          ...textFieldProps?.InputProps,
+          startAdornment: icon ? (
+            <div style={{ marginRight: 8 }}>{icon}</div>
+          ) : null,
+          endAdornment: loading ? (
+            <CircularProgress size={24} />
+          ) : (
+            textFieldProps?.InputProps?.endAdornment
+          ),
+        }}
+        inputRef={ref}
+      />
+    );
+  },
+);
 
 export default TextInput;
