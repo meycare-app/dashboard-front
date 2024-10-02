@@ -21,41 +21,41 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
         </IconButton>
       </div>
 
-      <div className="bg-white py-10">
+      <div className="flex-1 bg-white py-10 shadow">
         <nav className="flex flex-col px-2">
           <Link
-            href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            href="/dashboard"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Dashboard
           </Link>
           <Link
-            href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            href="/patientControl"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Controle dos Pacientes
           </Link>
           <Link
             href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Controle dos Administradores
           </Link>
           <Link
             href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Cadastro dos Administradores
           </Link>
           <Link
             href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Pontuação
           </Link>
           <Link
             href="/"
-            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Perfil
           </Link>
