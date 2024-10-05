@@ -1,38 +1,9 @@
 import MyButton from "@/components/mui/Button";
-import TextInput from "@/components/mui/TextInput";
-import { useRef, useState } from "react";
+import OTPInput from "@/components/mui/OTPInput";
 
-export default function CheckEmailCode() {
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const newCode = [...code];
-    const inputValue = e.target.value;
-
-    if (inputValue && index < 5) {
-      inputsRef.current[index + 1]?.focus();
-    }
-
-    newCode[index] = inputValue;
-    setCode(newCode);
-  };
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const handleContinue = () => {
-    const fullCode = code.join("");
-    console.log("Código inserido:", fullCode);
+export default function CheckEmailCode({ nextStep }: { nextStep: () => void }) {
+  const handleComplete = (code: string) => {
+    console.log("Código inserido:", code);
   };
 
   return (
@@ -41,28 +12,9 @@ export default function CheckEmailCode() {
         <h1 className="text-[24px] font-normal leading-[32.02px]">
           Insira o código que você recebeu no e-mail
         </h1>
-        <div className="flex gap-4">
-          {code.map((digit, index) => (
-            <div className="max-w-16">
-              <TextInput
-                textFieldProps={{
-                  value: digit,
-                  onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleChange(e, index),
-                  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) =>
-                    handleKeyDown(e, index),
-                  inputProps: { maxLength: 1, style: { textAlign: "center" } },
-                  autoFocus: index === 0,
-                }}
-                ref={(el) => {
-                  inputsRef.current[index] = el;
-                }}
-              />
-            </div>
-          ))}
-        </div>
+        <OTPInput length={6} onComplete={handleComplete} />
         <div className="flex flex-col gap-4">
-          <MyButton>CONTINUAR</MyButton>
+          <MyButton onClick={nextStep}>CONTINUAR</MyButton>
         </div>
       </div>
     </section>

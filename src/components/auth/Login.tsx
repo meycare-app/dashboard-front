@@ -1,8 +1,11 @@
 import MyButton from "@/components/mui/Button";
 import TextInput from "@/components/mui/TextInput";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
+
   return (
     <>
       <section className="flex grow items-center justify-center">
@@ -15,11 +18,16 @@ export default function Login() {
             <TextInput label="Senha" />
           </div>
           <div className="flex flex-col gap-4">
-            <Link className="text-gray-600 underline" href={""}>
+            <Link className="text-gray-600 underline" href={"/esqueci-a-senha"}>
               Esqueceu a senha?
             </Link>
             <MyButton>ENTRAR</MyButton>
-            <MyButton outlined>ESSE É O MEU PRIMEIRO ACESSO</MyButton>
+            <MyButton
+              outlined
+              onClick={() => router.push("/login/primeiro-acesso")}
+            >
+              ESSE É O MEU PRIMEIRO ACESSO
+            </MyButton>
           </div>
         </div>
       </section>

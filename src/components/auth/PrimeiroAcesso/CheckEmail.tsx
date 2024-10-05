@@ -1,8 +1,11 @@
 import MyButton from "@/components/mui/Button";
 import TextInput from "@/components/mui/TextInput";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function CheckEmail() {
+export default function CheckEmail({ nextStep }: { nextStep: () => void }) {
+  const router = useRouter();
+
   return (
     <section className="flex grow items-center justify-center">
       <div className="flex min-w-128 flex-col gap-8">
@@ -16,8 +19,10 @@ export default function CheckEmail() {
           <Link className="text-gray-600 underline" href={""}>
             Esqueceu a senha?
           </Link>
-          <MyButton>CONTINUAR</MyButton>
-          <MyButton outlined>VOLTAR</MyButton>
+          <MyButton onClick={nextStep}>CONTINUAR</MyButton>
+          <MyButton onClick={() => router.push("/login")} outlined>
+            VOLTAR
+          </MyButton>
         </div>
       </div>
     </section>
