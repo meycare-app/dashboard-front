@@ -325,7 +325,7 @@ export default function PointsTable() {
         </div>
 
         <Paper>
-          {tableData.length <= 0 && (
+          {tableData && tableData.length <= 0 && (
             <div className="flex h-96 items-center justify-center">
               <Card className="flex flex-col items-center gap-2 p-20">
                 <span>
@@ -339,7 +339,7 @@ export default function PointsTable() {
             </div>
           )}
 
-          {tableData.length > 0 && (
+          {tableData && tableData.length > 0 && (
             <Table>
               <TableHead>
                 {table.getHeaderGroups().map((headerGroup) => {
