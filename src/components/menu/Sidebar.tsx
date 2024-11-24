@@ -48,6 +48,12 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
             Cadastro dos Administradores
           </Link>
           <Link
+            href="/historico-de-vendas"
+            className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
+          >
+            Histórico de Vendas
+          </Link>
+          <Link
             href="/"
             className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
