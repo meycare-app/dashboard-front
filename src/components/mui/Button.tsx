@@ -12,13 +12,15 @@ const CustomButton = styled(Button)<{ outlined?: boolean }>(
     height: "42px",
     borderRadius: "4px",
     textTransform: "none",
-    fontWeight: "bold",
+    fontWeight: "semibold",
     border: outlined ? `1px solid ${theme.palette.primary.main}` : "none",
-    boxShadow: `
-    0px 2px 4px -1px ${alpha("#000000", 0.2)},
-    0px 4px 5px 0px ${alpha("#000000", 0.14)},
-    0px 1px 10px 0px ${alpha("#000000", 0.12)}
-    `,
+    boxShadow: outlined
+      ? "none"
+      : `
+        0px 2px 4px -1px ${alpha("#000000", 0.2)},
+        0px 4px 5px 0px ${alpha("#000000", 0.14)},
+        0px 1px 10px 0px ${alpha("#000000", 0.12)}
+      `,
     "&:hover": {
       backgroundColor: outlined
         ? alpha(theme.palette.primary.main, 0.08)

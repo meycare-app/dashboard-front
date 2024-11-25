@@ -18,7 +18,10 @@ export default function Login() {
             <TextInput label="Senha" />
           </div>
           <div className="flex flex-col gap-4">
-            <Link className="text-gray-600 underline" href={"/esqueci-a-senha"}>
+            <Link
+              className="text-gray-600 underline"
+              href={"/login/esqueci-a-senha"}
+            >
               Esqueceu a senha?
             </Link>
             <MyButton>ENTRAR</MyButton>
