@@ -2,7 +2,6 @@ import React, { forwardRef } from "react";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 import CircularProgress from "@mui/material/CircularProgress";
-import zIndex from "@mui/material/styles/zIndex";
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-root": {
@@ -41,13 +40,43 @@ interface CustomTextFieldProps {
   textFieldProps?: TextFieldProps;
   label?: string;
   placeholder?: string;
+  name?: string;
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  error?: boolean;
+  helperText?: string | false;
+  type?: string;
 }
 
 const TextInput = forwardRef<HTMLInputElement, CustomTextFieldProps>(
-  ({ loading, icon, textFieldProps, label, placeholder }, ref) => {
+  (
+    {
+      loading,
+      icon,
+      textFieldProps,
+      label,
+      placeholder,
+      name,
+      value,
+      onChange,
+      onBlur,
+      error,
+      helperText,
+      type,
+    },
+    ref,
+  ) => {
     return (
       <CustomTextField
         {...textFieldProps}
+        value={value}
+        name={name}
+        onChange={onChange}
+        onBlur={onBlur}
+        error={error}
+        helperText={helperText}
+        type={type}
         label={label}
         placeholder={placeholder}
         InputLabelProps={{
