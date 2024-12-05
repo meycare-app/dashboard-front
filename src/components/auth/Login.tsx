@@ -1,9 +1,11 @@
+"use client";
 import MyButton from "@/components/mui/Button";
 import TextInput from "@/components/mui/TextInput";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { signIn } from "next-auth/react";
 
 const validationSchema = yup.object({
   email: yup
@@ -22,8 +24,32 @@ export default function Login() {
       senha: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values, { setErrors }) => {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.senha,
+      });
+
+      if (res?.ok) {
+        router.push("/dashboard");
+      } else {
+        switch (res?.status) {
+          case 401:
+            setErrors({ senha: "Sua senha está incorreta." });
+            break;
+          case 404:
+            setErrors({
+              email: "Você não foi cadastrado no sistema. Peça o acesso.",
+            });
+            break;
+          case 403:
+            setErrors({ email: "O email não foi verificado." });
+            break;
+          default:
+            console.error("Erro ao fazer login:", res?.error);
+        }
+      }
     },
   });
 

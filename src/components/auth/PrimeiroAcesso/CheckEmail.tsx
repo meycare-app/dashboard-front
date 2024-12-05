@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
+import { useState } from "react";
 
 const validationSchema = yup.object({
   email: yup
@@ -12,13 +13,44 @@ const validationSchema = yup.object({
     .required("E-mail é obrigatório"),
 });
 
-export default function CheckEmail({ nextStep }: { nextStep: () => void }) {
+type CheckEmailProps = {
+  nextStep: () => void;
+  setEmail: (email: string) => void;
+};
+
+export default function CheckEmail({ nextStep, setEmail }: CheckEmailProps) {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const formik = useFormik({
     initialValues: { email: "" },
     validationSchema,
-    onSubmit: () => nextStep(),
+    onSubmit: async (values) => {
+      setEmail(values.email);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `${process.env.API_URL}/admin/verify-check-activation-code`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: values.email }),
+          },
+        );
+
+        if (response.ok) {
+          console.log("Email enviado com sucesso");
+          nextStep();
+        } else {
+          setError("Você não foi cadastrado no sistema. Peça o acesso.");
+        }
+      } catch (error) {
+        setError("Erro na solicitação. Tente novamente.");
+      }
+    },
   });
 
   return (
@@ -37,6 +69,7 @@ export default function CheckEmail({ nextStep }: { nextStep: () => void }) {
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
           />
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <div className="flex flex-col gap-4">
             <Link className="text-gray-600 underline" href={"/login"}>
               Esqueceu a senha?
