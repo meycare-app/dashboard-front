@@ -1,11 +1,11 @@
 'use server'
 
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
 import { createServerAction, ZSAError } from 'zsa'
 import z from 'zod'
-import { GetPointsTableProps, UpdateActivityTypeResponse } from './types'
+import { GetPointsTableProps } from './types'
 import { getActivitiesType } from '@/http/activities/get-activities-type'
 import { createActivityType } from '@/http/activities/create-activity-type'
+import { updateActivityType } from '@/http/activities/update-activity-type'
 
 export const createActivityTypeAction = createServerAction()
   .input(
@@ -45,32 +45,21 @@ export const updateActivityTypeAction = createServerAction()
       points: z.coerce
         .number({ message: 'Insira somente números' })
         .min(1, 'Os pontos da ação são obrigatórios'),
+      activityTypeId: z.string(),
     }),
     {
       type: 'formData',
     },
   )
-  .handler(async ({ input }) => {
+  .handler(async ({ input: data }) => {
     try {
-      const data = {
-        name: input.name,
-        points: input.points,
-      }
-
-      await fetchWrapper<UpdateActivityTypeResponse>('/rota', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer token',
-        },
-        body: JSON.stringify(data),
-      })
+      await updateActivityType(data)
     } catch (error) {
       console.error('Error 🚨\n' + JSON.stringify(error))
     }
   })
 
-export const fetchPointsTableData = async ({
+export const getPointsTableData = async ({
   page,
   rowsPerPage,
   globalFilter,
