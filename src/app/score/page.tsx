@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 export default function Score() {
   return (
     <>
-      <div>
-        <h1 className="mb-2 text-4xl">Pontuação</h1>
-        <Divider />
-      </div>
-
-      <PointsTable />
+      <main className="mx-auto mt-8 w-4/5">
+        <div>
+          <h1 className="mb-2 text-4xl">Pontuação</h1>
+          <Divider />
+        </div>
+        <PointsTable />
+      </main>
     </>
   )
 }
