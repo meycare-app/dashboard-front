@@ -1,6 +1,12 @@
 'use client'
 
-import { MoreHoriz, Refresh, Search, WarningAmber } from '@mui/icons-material'
+import {
+  DoNotDisturbAlt,
+  MoreHoriz,
+  Refresh,
+  Search,
+  WarningAmber,
+} from '@mui/icons-material'
 import {
   Button,
   Card,
@@ -31,7 +37,7 @@ import { RowDataType, PointsTableData } from './types'
 import { useDebounce } from '@/utils/debounce/useDebounce'
 import {
   createActivityTypeAction,
-  fetchPointsTableData,
+  getPointsTableData,
   updateActivityTypeAction,
 } from './actions'
 import { useServerAction } from 'zsa-react'
@@ -48,33 +54,9 @@ const theme = createTheme({
 const columnHelper = createColumnHelper<PointsTableData>()
 
 export default function PointsTable() {
-  const {
-    executeFormAction: executeCreateActivityTypeAction,
-    error: createActivityTypeError,
-    isPending: isActivityTypePending,
-  } = useServerAction(createActivityTypeAction, {
-    onSuccess: async () => {
-      setCreateActivityTypeFormValue({
-        name: '',
-        description: '',
-        points: 0,
-      })
-
-      const response = await fetchPointsTableData({
-        page,
-        rowsPerPage,
-        globalFilter,
-      })
-
-      setTableData(response.results)
-      setRowTotalCount(response.total)
-    },
-  })
-
-  const {
-    executeFormAction: executeUpdateActivityTypeAction,
-    error: updateActivityTypeError,
-  } = useServerAction(updateActivityTypeAction)
+  const [selectedRowData, setSelectedRowData] = useState<RowDataType | null>(
+    null,
+  )
 
   const [createActivityTypeFormValue, setCreateActivityTypeFormValue] =
     useState({
@@ -89,9 +71,6 @@ export default function PointsTable() {
     })
   const [openCreatePoints, setOpenCreatePoints] = useState(false)
   const [openUpdatePoints, setOpenUpdatePoints] = useState(false)
-  const [selectedRowData, setSelectedRowData] = useState<RowDataType | null>(
-    null,
-  )
 
   const [tableData, setTableData] = useState<PointsTableData[]>([])
   const [page, setPage] = useState(0)
@@ -99,6 +78,39 @@ export default function PointsTable() {
   const [rowTotalCount, setRowTotalCount] = useState(0)
   const [globalFilterInput, setGlobalFilterInput] = useState('')
   const globalFilter = useDebounce(globalFilterInput, 300)
+
+  const {
+    executeFormAction: executeCreateActivityTypeAction,
+    error: createActivityTypeError,
+    isPending: isCreateActivityTypePending,
+  } = useServerAction(createActivityTypeAction, {
+    onSuccess: async () => {
+      setCreateActivityTypeFormValue({
+        name: '',
+        description: '',
+        points: 0,
+      })
+
+      const response = await getPointsTableData({
+        page,
+        rowsPerPage,
+        globalFilter,
+      })
+
+      setTableData(response.results)
+      setRowTotalCount(response.total)
+    },
+  })
+
+  const {
+    executeFormAction: executeUpdateActivityTypeAction,
+    error: updateActivityTypeError,
+    isPending: isUpdateActivityTypePending,
+  } = useServerAction(updateActivityTypeAction, {
+    bind: {
+      activityTypeId: selectedRowData?.id ?? '',
+    },
+  })
 
   const columns = [
     columnHelper.accessor('name', {
@@ -115,11 +127,25 @@ export default function PointsTable() {
     }),
     columnHelper.display({
       id: 'edit',
-      cell: (info) => (
-        <Button onClick={() => handleUpdatePointsDialogOpen(info.row.original)}>
-          <MoreHoriz className="text-black" />
-        </Button>
-      ),
+      cell: (info) => {
+        const isDefaultActivitiesType =
+          info.row.original.name === 'Indicação' ||
+          info.row.original.name === 'Compra de produto'
+
+        return (
+          <Button
+            className="disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => handleUpdatePointsDialogOpen(info.row.original)}
+            disabled={isDefaultActivitiesType}
+          >
+            {isDefaultActivitiesType ? (
+              <DoNotDisturbAlt className="text-black" />
+            ) : (
+              <MoreHoriz className="text-black" />
+            )}
+          </Button>
+        )
+      },
     }),
   ]
 
@@ -185,8 +211,8 @@ export default function PointsTable() {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetchPointsTableData({
+    const getData = async () => {
+      const response = await getPointsTableData({
         page,
         rowsPerPage,
         globalFilter,
@@ -200,7 +226,7 @@ export default function PointsTable() {
       setRowTotalCount(response.total)
     }
 
-    fetchData()
+    getData()
   }, [page, rowsPerPage, globalFilter])
 
   return (
@@ -308,9 +334,9 @@ export default function PointsTable() {
                     className="w-24 font-semibold"
                     variant="contained"
                     color="primary"
-                    disabled={isActivityTypePending}
+                    disabled={isCreateActivityTypePending}
                   >
-                    {isActivityTypePending ? (
+                    {isCreateActivityTypePending ? (
                       <p>
                         <Refresh className="animate-spin" />
                       </p>
@@ -348,7 +374,7 @@ export default function PointsTable() {
                       {headerGroup.headers.map((header) => (
                         <TableCell
                           key={header.id}
-                          className={`${header.id === 'points' ? 'text-center' : ''} ${header.id === 'name' ? 'w-20' : ''} ${header.id === 'description' ? 'w-30' : ''} ${header.id === 'edit' ? 'w-12' : ''}`}
+                          className={`${header.id === 'points' ? 'w-48 text-center' : ''} ${header.id === 'name' ? 'w-36' : ''} ${header.id === 'description' ? 'w-36' : ''} ${header.id === 'edit' ? 'w-8' : ''}`}
                         >
                           {flexRender(
                             header.column.columnDef.header,
@@ -372,10 +398,10 @@ export default function PointsTable() {
                             cell.column.id === 'points'
                               ? 'w-[385px] text-center'
                               : ''
-                          } ${cell.column.id === 'description' ? 'h-[100px] w-[260px]' : ''} ${cell.column.id === 'edit' ? 'w-[50px]' : ''} ${cell.column.id === 'action' ? 'w-[50px]' : ''} `}
+                          } ${cell.column.id === 'description' ? 'h-[80px] w-[260px]' : ''} ${cell.column.id === 'edit' ? 'w-[50px]' : ''} ${cell.column.id === 'action' ? 'w-[50px]' : ''} `}
                         >
                           {cell.column.id === 'description'
-                            ? truncateText(String(cell.getValue()), 80)
+                            ? truncateText(String(cell.getValue()), 60)
                             : flexRender(
                                 cell.column.columnDef.cell,
                                 cell.getContext(),
@@ -468,11 +494,18 @@ export default function PointsTable() {
 
                 <Button
                   type="submit"
-                  className="font-semibold"
+                  className="h-8 w-24 font-semibold"
                   variant="contained"
                   color="primary"
+                  disabled={isUpdateActivityTypePending}
                 >
-                  Salvar
+                  {isUpdateActivityTypePending ? (
+                    <p>
+                      <Refresh className="animate-spin" />
+                    </p>
+                  ) : (
+                    'Salvar'
+                  )}
                 </Button>
               </DialogActions>
             </form>
