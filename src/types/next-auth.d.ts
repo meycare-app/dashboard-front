@@ -5,11 +5,17 @@ declare module "next-auth" {
     user: {
       email: string;
       token: string;
-    };
+    },
+    tokenExpires: number;
+    refreshToken: string;
+    refreshTokenExpires: number;
   }
 
   interface User {
     token: string;
+    tokenExpires: number;
+    refreshToken: string;
+    refreshTokenExpires: number;
   }
 }
 
