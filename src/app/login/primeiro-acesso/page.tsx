@@ -7,25 +7,33 @@ import { useState } from "react";
 
 export default function PrimeiroAcessoPage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 2));
 
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <CheckEmail nextStep={nextStep} />;
+        return <CheckEmail nextStep={nextStep} setEmail={setEmail} />;
       case 1:
-        return <CheckEmailCode nextStep={nextStep} />;
+        return (
+          <CheckEmailCode
+            nextStep={nextStep}
+            email={email}
+            setToken={setToken}
+          />
+        );
       case 2:
-        return <Registro />;
+        return <Registro token={token} />;
       default:
-        return <CheckEmail nextStep={nextStep} />;
+        return <CheckEmail nextStep={nextStep} setEmail={setEmail} />;
     }
   };
 
   return (
     <main className="flex">
-      <LogoBar />
+      {currentStep !== 2 && <LogoBar />}
       {renderStep()}
     </main>
   );

@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { theme } from "@/utils/theme";
+import SessionProvider from "@/components/SessionProvider";
 
 const roboto = Roboto({
   weight: ["400", "500", "700"],
@@ -25,10 +26,12 @@ export default function RootLayout({
         <title>Sistema de Indicação</title>
       </head>
       <body className={roboto.className}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

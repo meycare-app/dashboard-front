@@ -4,6 +4,7 @@ import TextInput from "@/components/mui/TextInput";
 import MyButton from "@/components/mui/Button";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { useState } from "react";
 
 const validationSchema = yup.object({
   nome: yup.string().required("Nome é obrigatório"),
@@ -14,7 +15,11 @@ const validationSchema = yup.object({
     .required("Confirmação de senha é obrigatória"),
 });
 
-export default function Registro() {
+export default function Registro({ token }: { token: string }): JSX.Element {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
+
   const formik = useFormik({
     initialValues: {
       nome: "",
@@ -22,13 +27,39 @@ export default function Registro() {
       confirmarSenha: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Registro concluído:", values);
+    onSubmit: async (values) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${process.env.API_URL}/admin/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: values.nome,
+            password: values.senha,
+          }),
+        });
+
+        if (response.ok) {
+          setSuccess(true);
+        } else {
+          const message = await response.text();
+          setError(message || "Erro ao registrar. Tente novamente.");
+        }
+      } catch (err) {
+        setError("Erro na solicitação. Tente novamente.");
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
   return (
-    <section className="flex grow items-center justify-center">
+    <section className="flex h-screen w-full items-center justify-center">
       <div className="flex min-w-128 flex-col items-center justify-center gap-8">
         <div className="relative h-24 w-128 min-w-[60%] rounded-md bg-light-background">
           <Image
@@ -82,7 +113,15 @@ export default function Registro() {
               formik.touched.confirmarSenha && formik.errors.confirmarSenha
             }
           />
-          <MyButton type="submit">CONFIRMAR</MyButton>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          {success && (
+            <p className="text-sm text-green-500">
+              Registro concluído com sucesso!
+            </p>
+          )}
+          <MyButton type="submit" disabled={loading}>
+            {loading ? "Processando..." : "CONFIRMAR"}
+          </MyButton>
         </form>
       </div>
     </section>

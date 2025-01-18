@@ -7,19 +7,27 @@ import { useState } from "react";
 
 export default function PrimeiroAcessoPage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 2));
 
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <FindEmail nextStep={nextStep} />;
+        return <FindEmail nextStep={nextStep} setEmail={setEmail} />;
       case 1:
-        return <CheckEmailCode nextStep={nextStep} />;
+        return (
+          <CheckEmailCode
+            nextStep={nextStep}
+            email={email}
+            setToken={setToken}
+          />
+        );
       case 2:
-        return <ResetPassword />;
+        return <ResetPassword token={token} />;
       default:
-        return <FindEmail nextStep={nextStep} />;
+        return <FindEmail nextStep={nextStep} setEmail={setEmail} />;
     }
   };
 
