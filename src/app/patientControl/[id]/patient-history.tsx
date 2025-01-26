@@ -19,16 +19,26 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useState } from 'react'
 import { Refresh, Search } from '@mui/icons-material'
 import { useServerAction } from 'zsa-react'
-import { deleteActivityAction } from './action'
+import { addActivityTypeAction, deleteActivityAction } from './action'
 
 export function PatientHistory({ data, activitiesType }: PatientDataProps) {
-  const { name, activities, id } = data
+  const { activities, id } = data
 
   const [openCreateAction, setOpenCreateAction] = useState(false)
   const [openRemoveActionDialog, setOpenRemoveActionDialog] = useState(false)
   const [activityId, setActivityId] = useState('')
 
   const { execute, isPending } = useServerAction(deleteActivityAction)
+  const {
+    executeFormAction,
+    isPending: isAddActivityTypePending,
+    error: addActivityTypeError,
+    reset: resetAddActivityType,
+  } = useServerAction(addActivityTypeAction, {
+    bind: {
+      userId: id,
+    },
+  })
 
   const handleDeleteActivity = async (id: string, activityId: string) => {
     await execute({ id, activityId })
@@ -41,6 +51,8 @@ export function PatientHistory({ data, activitiesType }: PatientDataProps) {
   }
 
   const handleCreateActionDialogClose = () => {
+    resetAddActivityType()
+
     setOpenCreateAction(false)
   }
 
@@ -60,15 +72,19 @@ export function PatientHistory({ data, activitiesType }: PatientDataProps) {
           <div key={activity.id} className="w-full">
             <div className="mb-1 mt-6 flex items-center justify-between px-4">
               <div className="flex flex-col gap-4">
-                <h2>{activity.activity_data.product_name}</h2>
+                {activity.activity_data.product_name && (
+                  <h2>{activity.activity_data.product_name}</h2>
+                )}
 
-                <div className="flex flex-col gap-1 text-[#49454F]">
+                <div className="flex flex-col gap-4 text-[#49454F]">
                   <p>Data: {dayjs(activity.created_at).format('DD/MM/YYYY')}</p>
-                  <p>Administrador: {name}</p>
+                  {activity.activity_data.admin_name && (
+                    <p>Administrador: {activity.activity_data.admin_name}</p>
+                  )}
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex w-28 flex-col items-center gap-4">
                 <p>{activity.points} pontos</p>
 
                 <Button
@@ -116,42 +132,71 @@ export function PatientHistory({ data, activitiesType }: PatientDataProps) {
       >
         <DialogTitle>Adicionar ação</DialogTitle>
 
-        <DialogContent className="h-80">
-          <form action="">
+        <form action={executeFormAction}>
+          <DialogContent className="h-80">
             <FormControl fullWidth className="mt-2">
-              <InputLabel id="action">Ação</InputLabel>
+              <InputLabel id="activityTypeId">Ação</InputLabel>
               <Select
                 label="Ação"
-                name="action"
+                name="activityTypeId"
                 type="text"
                 placeholder="Ação"
                 variant="outlined"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 225,
+                    },
+                  },
+                }}
               >
                 {activitiesType &&
+                  activitiesType?.length > 0 &&
                   activitiesType.map((activity) => (
                     <MenuItem key={activity.id} value={activity.id}>
                       {activity.name}: {activity.points} pontos
                     </MenuItem>
                   ))}
+
+                {activitiesType && activitiesType?.length <= 0 && (
+                  <MenuItem disabled>Nenhuma ação cadastrada</MenuItem>
+                )}
               </Select>
+              {addActivityTypeError?.fieldErrors?.activityTypeId && (
+                <p className="mt-2 text-center text-sm italic text-red-500">
+                  {addActivityTypeError?.fieldErrors?.activityTypeId}
+                </p>
+              )}
             </FormControl>
-          </form>
-        </DialogContent>
+          </DialogContent>
 
-        <DialogActions>
-          <Button
-            color="error"
-            variant="outlined"
-            onClick={handleCreateActionDialogClose}
-            className="px-6"
-          >
-            Cancelar
-          </Button>
+          <DialogActions>
+            <Button
+              color="error"
+              type="button"
+              variant="outlined"
+              onClick={handleCreateActionDialogClose}
+              className="px-6"
+            >
+              Cancelar
+            </Button>
 
-          <Button className="px-8" color="primary" variant="contained">
-            Adicionar
-          </Button>
-        </DialogActions>
+            <Button
+              className="w-32 px-8"
+              variant="contained"
+              type="submit"
+              disabled={isAddActivityTypePending}
+            >
+              {isAddActivityTypePending ? (
+                <p>
+                  <Refresh className="animate-spin" />
+                </p>
+              ) : (
+                'Adicionar'
+              )}
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
 
       <Dialog
@@ -165,7 +210,7 @@ export function PatientHistory({ data, activitiesType }: PatientDataProps) {
         </DialogTitle>
 
         <DialogContent>
-          <p>Essa exclusão não pode ser revertida.</p>
+          <p>Essa ação não pode ser revertida.</p>
         </DialogContent>
 
         <DialogActions>

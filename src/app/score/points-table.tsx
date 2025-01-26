@@ -83,6 +83,7 @@ export default function PointsTable() {
     executeFormAction: executeCreateActivityTypeAction,
     error: createActivityTypeError,
     isPending: isCreateActivityTypePending,
+    reset: resetCreateActivityTypeResponse,
   } = useServerAction(createActivityTypeAction, {
     onSuccess: async () => {
       setCreateActivityTypeFormValue({
@@ -106,9 +107,24 @@ export default function PointsTable() {
     executeFormAction: executeUpdateActivityTypeAction,
     error: updateActivityTypeError,
     isPending: isUpdateActivityTypePending,
+    data: updateActivityTypeResponse,
+    reset: resetUpdateActivityTypeResponse,
   } = useServerAction(updateActivityTypeAction, {
-    bind: {
-      activityTypeId: selectedRowData?.id ?? '',
+    onSuccess: async (args) => {
+      if (args.data.message) {
+        return
+      }
+
+      const response = await getPointsTableData({
+        page,
+        rowsPerPage,
+        globalFilter,
+      })
+
+      setTableData(response.results)
+      setRowTotalCount(response.total)
+
+      setOpenUpdatePoints(false)
     },
   })
 
@@ -181,6 +197,8 @@ export default function PointsTable() {
 
   const handleCreatePointsDialogClose = () => {
     setOpenCreatePoints(false)
+
+    resetCreateActivityTypeResponse()
   }
 
   const handleUpdatePointsDialogOpen = (rowData: RowDataType) => {
@@ -190,6 +208,8 @@ export default function PointsTable() {
 
   const handleUpdatePointsDialogClose = () => {
     setOpenUpdatePoints(false)
+
+    resetUpdateActivityTypeResponse()
   }
 
   const handleCreateActivityTypeFormChange = (
@@ -460,6 +480,14 @@ export default function PointsTable() {
                       {updateActivityTypeError.fieldErrors.name}
                     </p>
                   )}
+
+                  {updateActivityTypeResponse?.message &&
+                    updateActivityTypeResponse.message ===
+                      'Esse nome para categoria de atividade já existe.' && (
+                      <p className="text-center text-sm italic text-red-500">
+                        Esse nome já está sendo utilizado em outra ação
+                      </p>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -480,6 +508,14 @@ export default function PointsTable() {
                     </p>
                   )}
                 </div>
+
+                <TextField
+                  name="activityTypeId"
+                  type="hidden"
+                  aria-readonly
+                  className="hidden"
+                  defaultValue={selectedRowData?.id}
+                />
               </FormControl>
 
               <DialogActions className="-mb-2 mt-4">

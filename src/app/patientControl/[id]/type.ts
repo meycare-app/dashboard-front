@@ -19,7 +19,9 @@ interface Activities {
     product_id: string
     neighborhood: string
     points_price: number
-    product_name: string
+    product_name?: string
+    admin_name?: string
+    admin_id?: string
   }
   created_at: string
   updated_at: string

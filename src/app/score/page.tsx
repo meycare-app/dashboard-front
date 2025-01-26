@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Score() {
   return (
     <>
-      <main className="mx-auto mt-8 w-4/5">
+      <main className="mx-auto mt-32 w-4/5">
         <div>
           <h1 className="mb-2 text-4xl">Pontuação</h1>
           <Divider />
