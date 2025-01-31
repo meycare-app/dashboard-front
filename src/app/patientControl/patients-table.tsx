@@ -31,7 +31,7 @@ import { Person, Search } from '@mui/icons-material'
 import { phoneMask } from '@/utils/masks/phoneMask'
 import { getCommonUsersTableData } from './actions'
 import { CommonUserData } from './types'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const theme = createTheme(
   {
@@ -55,19 +55,16 @@ export function PatientsTable() {
   const [globalFilterInput, setGlobalFilterInput] = useState('')
   const globalFilter = useDebounce(globalFilterInput, 300)
 
+  const router = useRouter()
+
   const columns = [
     columnHelper.accessor('name', {
       header: 'Usuário',
       cell: (info) => {
         return (
-          <span>
-            <Link
-              href={`/patientControl/${info.row.original.id}`}
-              className="flex items-center gap-1"
-            >
-              <Person className="h-5 w-5 text-[#000000] text-opacity-[56%]" />
-              {info.getValue()}
-            </Link>
+          <span className="flex items-center gap-1">
+            <Person className="h-5 w-5 text-[#000000] text-opacity-[56%]" />
+            {info.getValue()}
           </span>
         )
       },
@@ -201,18 +198,21 @@ export function PatientsTable() {
 
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer hover:bg-slate-50"
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      <Link
-                        href={`/patientControl/${row.original.id}`}
-                        className="hover:underline"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </Link>
+                    <TableCell
+                      key={cell.id}
+                      onClick={() =>
+                        router.push(`/patientControl/${row.original.id}`)
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>

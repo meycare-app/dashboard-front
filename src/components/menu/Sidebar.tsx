@@ -13,11 +13,8 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
       <div className="flex items-center justify-between bg-[#B6821C] px-6 py-3">
         <Image src={logo} alt="Logo" width={107} />
 
-        <IconButton>
-          <CloseIcon
-            onClick={() => setOpen(false)}
-            className="cursor-pointer text-white"
-          />
+        <IconButton onClick={() => setOpen(false)}>
+          <CloseIcon className="cursor-pointer text-white" />
         </IconButton>
       </div>
 
@@ -36,7 +33,7 @@ export default function Sidenav({ open, setOpen }: SidebarProps) {
             Controle dos Pacientes
           </Link>
           <Link
-            href="/"
+            href="/adminControl"
             className="border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 hover:text-[#B6821C]"
           >
             Controle dos Administradores

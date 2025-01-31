@@ -1,10 +1,10 @@
 import { Divider } from '@mui/material'
 
 import { Metadata } from 'next'
-import { PatientsTable } from './patients-table'
+import { AdminsTable } from './admins-table'
 
 export const metadata: Metadata = {
-  title: 'Controle dos Pacientes',
+  title: 'Controle dos Administradores',
 }
 
 export default async function PatientControl() {
@@ -12,11 +12,11 @@ export default async function PatientControl() {
     <>
       <main className="mx-auto mt-32 w-4/5">
         <div>
-          <h1 className="mb-2 text-4xl">Controle dos Pacientes</h1>
+          <h1 className="mb-2 text-4xl">Controle dos Administradores</h1>
           <Divider />
         </div>
 
-        <PatientsTable />
+        <AdminsTable />
       </main>
     </>
   )

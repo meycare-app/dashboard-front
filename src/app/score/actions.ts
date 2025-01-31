@@ -53,7 +53,9 @@ export const updateActivityTypeAction = createServerAction()
   )
   .handler(async ({ input: data }) => {
     try {
-      await updateActivityType(data)
+      const response = await updateActivityType(data)
+
+      return response
     } catch (error) {
       console.error('Error 🚨\n' + JSON.stringify(error))
     }

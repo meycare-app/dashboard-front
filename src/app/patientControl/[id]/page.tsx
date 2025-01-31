@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function Page({ params }: { params: { id: string } }) {
   const commonUserInfo = await getCommonUserInfo({ id: params.id })
   const activitiesType = await getActivitiesType({
-    url: '/activities/activity-type/0/99',
+    url: '/activities/activity-type/0/100',
   }).then((res) =>
     res.results.filter(
       (activity) =>
@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <>
-      <main className="mx-auto mt-8 w-4/5">
+      <main className="mx-auto mt-32 w-4/5">
         <div>
           <h1 className="mb-2 text-4xl">{commonUserInfo.name}</h1>
 

@@ -12,7 +12,7 @@ export default function Appbar() {
 
   return (
     <>
-      <header>
+      <header className="fixed left-0 top-0 z-50 w-full">
         <div className="flex items-center gap-6 bg-[#B6821C] px-6 py-3">
           <IconButton type="button" onClick={() => setSideBarOpen(true)}>
             <MenuIcon className="text-white" />
