@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import Card from "./components/Card";
-import Appbar from "@/components/menu/Navbar";
+import { Navbar } from "@/components/menu/Navbar";
 
 const theme = createTheme({
   palette: {
@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <Appbar />
+      <Navbar />
       <main className="mx-auto mt-32 w-4/5">
         <ThemeProvider theme={theme}>
           <div>
