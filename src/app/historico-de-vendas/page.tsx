@@ -1,6 +1,6 @@
 import { Divider } from '@mui/material'
 import { Metadata } from 'next'
-import Appbar from '@/components/menu/Navbar'
+import { Navbar } from '@/components/menu/Navbar'
 import { HistorySells } from './components'
 import { UserType } from './types'
 
@@ -28,7 +28,7 @@ export default async function PatientControl() {
 
   return (
     <>
-      <Appbar />
+      <Navbar />
       <main className="mx-auto mt-8 w-4/5">
         <div>
           <h1 className="mb-2 text-4xl">Histórico de vendas</h1>
