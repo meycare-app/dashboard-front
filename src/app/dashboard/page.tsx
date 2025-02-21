@@ -4,7 +4,7 @@ import {
   StorefrontOutlined,
 } from '@mui/icons-material'
 import { Divider, Paper } from '@mui/material'
-import { Card } from './components/card'
+import { Card } from './components/Card'
 import Appbar from '@/components/menu/Navbar'
 import { Metadata } from 'next'
 import { CardFilter } from './components/card-filter'

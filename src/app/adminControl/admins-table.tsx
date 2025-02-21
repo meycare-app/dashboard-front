@@ -40,6 +40,7 @@ import {
   getAdminsTableData,
   inactivateAdminServerAction,
   reactivateAdminServerAction,
+  updateAdminNameServerAction,
 } from './actions'
 import { useServerAction } from 'zsa-react'
 
@@ -166,12 +167,26 @@ export function AdminsTable() {
     },
   })
 
+  const {
+    executeFormAction,
+    error: updateAdminNameError,
+    isPending: isUpdateAdminNamePending,
+    isSuccess: isUpdateAdminNameSuccess,
+    reset,
+  } = useServerAction(updateAdminNameServerAction, {
+    onSuccess: () => {
+      setOpenUpdateAdminName(false)
+    },
+  })
+
   const handleUpdateAdminNameDialogOpen = (rowData: AdminData) => {
     setSelectedRowData(rowData)
     setOpenUpdateAdminName(true)
   }
 
   const handleUpdateAdminNameDialogClose = () => {
+    reset()
+
     setOpenUpdateAdminName(false)
   }
 
@@ -211,7 +226,7 @@ export function AdminsTable() {
     }
 
     fetchData()
-  }, [page, rowsPerPage, globalFilter, isActive])
+  }, [page, rowsPerPage, globalFilter, isActive, isUpdateAdminNameSuccess])
 
   return (
     <ThemeProvider theme={theme}>
@@ -328,7 +343,7 @@ export function AdminsTable() {
         <DialogTitle>Colaborador (Editar)</DialogTitle>
 
         <DialogContent>
-          <form action={''}>
+          <form action={executeFormAction}>
             <FormControl className="mt-6 flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <TextField
@@ -341,11 +356,18 @@ export function AdminsTable() {
                   defaultValue={selectedRowData?.name}
                 />
 
-                {/* {updateActivityTypeError?.fieldErrors?.name && (
+                <TextField
+                  name="adminId"
+                  type="text"
+                  className="hidden"
+                  defaultValue={selectedRowData?.id}
+                />
+
+                {updateAdminNameError?.fieldErrors?.name && (
                   <p className="text-center text-sm italic text-red-500">
-                    {updateActivityTypeError.fieldErrors.name}
+                    {updateAdminNameError.fieldErrors.name}
                   </p>
-                )} */}
+                )}
               </div>
             </FormControl>
 
@@ -407,7 +429,7 @@ export function AdminsTable() {
                   color="primary"
                   disabled={false}
                 >
-                  {isActive ? ( // Rota de atualizar nome do admin não está pronta
+                  {isUpdateAdminNamePending ? (
                     <p>
                       <Refresh className="animate-spin" />
                     </p>

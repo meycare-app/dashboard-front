@@ -1,4 +1,4 @@
-import Appbar from '@/components/menu/Navbar'
+import { Navbar } from '@/components/menu/Navbar'
 
 export default function PatientControlLayout({
   children,
@@ -7,7 +7,7 @@ export default function PatientControlLayout({
 }) {
   return (
     <div>
-      <Appbar />
+      <Navbar />
 
       {children}
     </div>
