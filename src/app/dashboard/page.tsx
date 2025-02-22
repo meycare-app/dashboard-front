@@ -5,7 +5,7 @@ import {
 } from '@mui/icons-material'
 import { Divider, Paper } from '@mui/material'
 import { Card } from './components/Card'
-import Appbar from '@/components/menu/Navbar'
+import { Navbar } from '@/components/menu/Navbar'
 import { Metadata } from 'next'
 import { CardFilter } from './components/card-filter'
 
@@ -78,7 +78,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <Appbar />
+      <Navbar />
       <main className="mx-auto mb-20 mt-32 w-4/5">
         <div>
           <h1 className="mb-2 text-4xl">Dashboard</h1>
