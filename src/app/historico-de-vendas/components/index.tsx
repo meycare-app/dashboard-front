@@ -26,7 +26,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useState } from 'react'
-import { HistorySellsProps, UserType } from '../types'
+import { HistorySellsProps, Purchase } from '../types'
 import SellsForm from './SellsForm'
 
 const theme = createTheme(
@@ -40,32 +40,34 @@ const theme = createTheme(
   ptBR,
 )
 
-const columnHelper = createColumnHelper<UserType>()
+const columnHelper = createColumnHelper<Purchase>()
 
 const columns = [
-  columnHelper.accessor('product', {
-    header: 'Produto',
+  columnHelper.accessor('id', {
+    header: 'ID do Produto',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('value', {
+  columnHelper.accessor('total_amount', {
     header: 'Valor',
-    cell: (info) => `R$ ${info.getValue()}`,
+    cell: (info) => `R$ ${info.getValue().toLocaleString('pt-BR')}`,
   }),
-  columnHelper.accessor('saleDate', {
+  columnHelper.accessor('date', {
     header: 'Data da Venda',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('client', {
+  columnHelper.accessor('', {
     header: 'Cliente',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('address', {
+  columnHelper.accessor('complement', {
     header: 'Endereço',
     cell: (info) => info.getValue(),
   }),
 ]
 
 export function HistorySells({ data }: HistorySellsProps) {
+  console.log('HistorySells', data)
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
@@ -74,8 +76,8 @@ export function HistorySells({ data }: HistorySellsProps) {
   })
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
-  const [selectedItem, setSelectedItem] = useState<UserType | null>(null)
-  const [rowMenuTarget, setRowMenuTarget] = useState<UserType | null>(null)
+  const [selectedItem, setSelectedItem] = useState<Purchase | null>(null)
+  const [rowMenuTarget, setRowMenuTarget] = useState<Purchase | null>(null)
 
   const table = useReactTable({
     columns,
@@ -95,7 +97,7 @@ export function HistorySells({ data }: HistorySellsProps) {
 
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLElement>,
-    row: UserType,
+    row: Purchase,
   ) => {
     setRowMenuTarget(row)
     setMenuAnchorEl(event.currentTarget)
@@ -117,11 +119,11 @@ export function HistorySells({ data }: HistorySellsProps) {
     return (
       <SellsForm
         selectedItem={{
-          product: selectedItem.product,
-          value: selectedItem.value,
-          saleDate: selectedItem.saleDate,
-          client: selectedItem.client,
-          address: selectedItem.address,
+          product: selectedItem.purchase_items,
+          value: selectedItem.total_amount,
+          saleDate: selectedItem.created_at,
+          client: selectedItem.status,
+          address: selectedItem.complement,
         }}
       />
     )
@@ -145,9 +147,38 @@ export function HistorySells({ data }: HistorySellsProps) {
             <TableBody>
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{cell.renderValue()}</TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell: any) => {
+                    return (
+                      <TableCell key={cell.id}>
+                        {cell.id.includes('date')
+                          ? new Date(cell.getValue()).toLocaleDateString(
+                              'pt-BR',
+                              {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              },
+                            ) +
+                            ' ' +
+                            new Date(cell.getValue()).toLocaleTimeString(
+                              'pt-BR',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              },
+                            )
+                          : cell.id.includes('total_amount')
+                            ? `R$ ${Number(cell.getValue()).toLocaleString(
+                                'pt-BR',
+                                {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                },
+                              )}`
+                            : cell.renderValue()}
+                      </TableCell>
+                    )
+                  })}
                   <TableCell>
                     <button
                       onClick={(event) => handleOpenMenu(event, row.original)}
@@ -170,9 +201,22 @@ export function HistorySells({ data }: HistorySellsProps) {
                       open={Boolean(menuAnchorEl)}
                       onClose={handleCloseMenu}
                     >
-                      <MenuItem onClick={handleViewDetails}>Ver</MenuItem>
-                      <MenuItem onClick={handleCloseMenu}>Editar</MenuItem>
-                      <MenuItem onClick={handleCloseMenu}>Excluir</MenuItem>
+                      <MenuItem onClick={handleViewDetails}>
+                        <svg
+                          width="16"
+                          height="15"
+                          viewBox="0 0 16 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className='mr-1'
+                        >
+                          <path
+                            d="M13.8333 13.3333H2.16667V1.66667H8V0H2.16667C1.24167 0 0.5 0.75 0.5 1.66667V13.3333C0.5 14.25 1.24167 15 2.16667 15H13.8333C14.75 15 15.5 14.25 15.5 13.3333V7.5H13.8333V13.3333ZM9.66667 0V1.66667H12.6583L4.46667 9.85833L5.64167 11.0333L13.8333 2.84167V5.83333H15.5V0H9.66667Z"
+                            fill="#625B71"
+                          />
+                        </svg>
+                        Ver detalhes
+                      </MenuItem>
                     </Menu>
                   </TableCell>
                 </TableRow>
