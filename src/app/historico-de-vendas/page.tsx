@@ -1,6 +1,6 @@
 'use client'
 import { Divider } from '@mui/material'
-import Appbar from '@/components/menu/Navbar'
+import { Navbar } from '@/components/menu/Navbar'
 import { HistorySells } from './components'
 
 import { useSession } from 'next-auth/react'
