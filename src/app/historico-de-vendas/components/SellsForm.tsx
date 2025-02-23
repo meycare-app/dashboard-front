@@ -1,8 +1,18 @@
 import { Divider } from '@mui/material'
 
+interface productItem {
+  id: string
+  product_id: string
+  purchase_id: string
+  quantity: number
+  price: number
+  created_at: string
+  updated_at: string
+}
+
 interface SellsFormProps {
   selectedItem: {
-    product: string
+    product: productItem[]
     value: number
     saleDate: string
     client: string
@@ -12,7 +22,7 @@ interface SellsFormProps {
 
 export default function SellsForm({ selectedItem }: SellsFormProps) {
   return (
-    <div className="mx-auto w-full rounded-lg bg-white p-6 shadow-md">
+    <div className="relative z-[1000] mt-[-64px] bg-white">
       <div className="mb-6">
         <label className="block font-medium text-gray-700">Cliente</label>
         <p className="rounded-md bg-gray-100 p-2">{selectedItem.client}</p>
@@ -22,7 +32,7 @@ export default function SellsForm({ selectedItem }: SellsFormProps) {
         <label className="block font-medium text-gray-700">
           Nome do produto
         </label>
-        <p className="rounded-md bg-gray-100 p-2">{selectedItem.product}</p>
+        <p className="rounded-md bg-gray-100 p-2">{selectedItem.client}</p>
       </div>
 
       <div className="mb-6">
