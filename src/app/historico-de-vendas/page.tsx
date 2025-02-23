@@ -61,7 +61,7 @@ export default function PatientControl() {
 
   return (
     <>
-      <Appbar />
+      <Navbar />
       <main className="mx-auto mt-8 w-4/5">
         <div>
           <h1 className="mb-2 mt-32 text-4xl">Histórico de vendas</h1>

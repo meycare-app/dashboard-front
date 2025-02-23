@@ -1,33 +1,63 @@
-import { GroupsOutlined } from '@mui/icons-material'
-import { Chip } from '@mui/material'
-import Image from 'next/image'
-import chart from '@/assets/dashboard/dashboardChart.png'
+import { Chip, Paper, SvgIconProps } from '@mui/material'
 
-export default function Card() {
+interface CardData {
+  title: string
+  count: number
+  lastMonthComparison: string
+  percentage: number
+  subtitle?: string
+  mostSaleType?: string
+}
+
+interface CardProps {
+  icon: React.ElementType<SvgIconProps>
+  data: CardData
+}
+
+export function Card({ icon: Icon, data }: CardProps) {
   return (
-    <div className="flex w-fit items-center gap-4 rounded p-3 shadow">
-      <div className="space-y-2">
-        <span className="flex items-center gap-2">
-          <div className="">
-            <GroupsOutlined className="h-7 w-7 rounded-full bg-[#777676] bg-opacity-60 p-1 text-white" />
+    <Paper className="flex w-full flex-col gap-4 rounded p-3 shadow">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div>
+            <Icon className="h-9 w-9 rounded-full bg-opacity-60 bg-gradient-to-b from-[#FFAF14] to-[#FFE0B1] p-1 text-[#8E6008]" />
           </div>
-          <p className="text-black/60">Cadastrados</p>
-        </span>
 
-        <span className="flex items-center gap-3 pt-1.5">
-          <p className="text-2xl">5000</p>
+          <div>
+            <p className="text-black/60">{data.title}</p>
+            {data.subtitle && (
+              <p className="text-xs text-black/60">{data.subtitle}</p>
+            )}
+          </div>
+        </div>
+
+        {data.mostSaleType && (
+          <div className="self-start">
+            <Chip
+              className="bg-[#B5E4F7] text-[8px] text-[#21005D]"
+              size="small"
+              label={
+                data.mostSaleType === 'score'
+                  ? 'Usando pontos'
+                  : 'Usando dinheiro'
+              }
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="flex w-full items-center justify-between">
+        <p className="text-2xl">{data.count}</p>
+
+        <span className="flex items-center gap-1 pt-1.5">
           <Chip
-            label="+10%"
+            label={`${data.lastMonthComparison === 'up' ? '+' : '-'}${data.percentage}%`}
             size="small"
-            className="bg-[#9DF4A1D9] bg-opacity-85 px-1.5 text-[#197D1D]"
+            className={`bg-opacity-85 px-1.5 ${data.lastMonthComparison === 'up' ? 'bg-[#9DF4A1D9] text-[#197D1D]' : 'bg-[#F49D9D] text-[#7D1919]'}`}
           />
+          <p className="text-sm text-black/60">No último mês</p>
         </span>
-        <span className="text-sm text-black/60">No último mês</span>
       </div>
-
-      <div>
-        <Image src={chart} width={150} height={100} alt="Chart" />
-      </div>
-    </div>
+    </Paper>
   )
 }
