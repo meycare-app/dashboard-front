@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Sidebar from './Sidebar'
 import { useState } from 'react'
 import { IconButton } from '@mui/material'
+import { signOut } from 'next-auth/react'
 
 export default function Appbar() {
   const [sideBarOpen, setSideBarOpen] = useState(false)
@@ -20,7 +21,12 @@ export default function Appbar() {
 
           <Image src={logo} alt="Logo" width={107} />
         </div>
-
+        <button
+          onClick={() => signOut()}
+          className="rounded bg-red-500 px-4 py-2 text-white"
+        >
+          Sair
+        </button>
         <Sidebar open={sideBarOpen} setOpen={setSideBarOpen} />
       </header>
     </>

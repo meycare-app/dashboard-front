@@ -1,6 +1,6 @@
-"use client";
-import LogoBar from "@/components/LogoBar";
-import Login from "../../components/auth/Login";
+'use client'
+import LogoBar from '@/components/LogoBar'
+import Login from '../../components/auth/Login'
 
 export default function LoginPage() {
   return (
@@ -8,5 +8,5 @@ export default function LoginPage() {
       <LogoBar />
       <Login />
     </main>
-  );
+  )
 }
