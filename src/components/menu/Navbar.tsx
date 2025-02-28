@@ -3,13 +3,53 @@
 import logo from '@/assets/logo.svg'
 import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
-import Sidebar from './Sidebar'
+import { Sidebar } from './Sidebar'
 import { useState } from 'react'
 import { IconButton } from '@mui/material'
 import { signOut } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 
-export default function Appbar() {
+export function Navbar() {
   const [sideBarOpen, setSideBarOpen] = useState(false)
+  const path = usePathname()
+
+  const sidebarData = [
+    {
+      title: 'Dashboard',
+      link: '/dashboard',
+      isActive: path === '/dashboard',
+    },
+    {
+      title: 'Controle dos Pacientes',
+      link: '/patientControl',
+      isActive: path.startsWith('/patientControl'),
+    },
+    {
+      title: 'Controle dos Administradores',
+      link: '/adminControl',
+      isActive: path === '/adminControl',
+    },
+    {
+      title: 'Cadastro dos Administradores',
+      link: '/register',
+      isActive: path === '/register',
+    },
+    {
+      title: 'Histórico de Vendas',
+      link: '/historico-de-vendas',
+      isActive: path === '/historico-de-vendas',
+    },
+    {
+      title: 'Pontuação',
+      link: '/score',
+      isActive: path === '/score',
+    },
+    {
+      title: 'Perfil',
+      link: '/profile',
+      isActive: path === '/profile',
+    },
+  ]
 
   return (
     <>
@@ -27,7 +67,12 @@ export default function Appbar() {
         >
           Sair
         </button>
-        <Sidebar open={sideBarOpen} setOpen={setSideBarOpen} />
+
+        <Sidebar
+          open={sideBarOpen}
+          setOpen={setSideBarOpen}
+          data={sidebarData}
+        />
       </header>
     </>
   )

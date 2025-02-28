@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
-
-export async function middleware(req: Request) {
-  return NextResponse.next();
-}
+export { default } from 'next-auth/middleware'
 
 export const config = {
-  matcher: ["/dashboard"],
-};
+  matcher: [
+    '/dashboard/:path*',
+    '/patientControl/:path*',
+    '/adminControl/:path*',
+    '/register/:path*',
+    '/historico-de-vendas/:path*',
+    '/profile/:path*',
+    '/score/:path*',
+  ],
+}

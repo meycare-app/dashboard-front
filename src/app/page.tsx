@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import Appbar from '@/components/menu/Navbar'
+import { Navbar } from '@/components/menu/Navbar'
 
 export default function Home() {
   const { data: session } = useSession()
@@ -11,7 +11,7 @@ export default function Home() {
   if (session !== null) {
     return (
       <>
-        <Appbar />
+        <Navbar />
         <main className="mx-auto mt-8 w-4/5"></main>
       </>
     )
