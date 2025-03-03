@@ -1,3 +1,5 @@
+'use server'
+
 import { reactivateAdmin } from '@/http/admin/reactivate-admin'
 import { GetAdminsTableProps } from './types'
 import { getAdmins } from '@/http/admin/get-admins'

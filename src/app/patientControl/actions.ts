@@ -1,3 +1,5 @@
+'use server'
+
 import { getCommonUsers } from '@/http/admin/get-common-users'
 import { GetCommonsUsersTableProps } from './types'
 
@@ -7,7 +9,7 @@ export const getCommonUsersTableData = async ({
   globalFilter,
   indicated,
 }: GetCommonsUsersTableProps) => {
-  let fetchUrl = `/admin/users/${page * rowsPerPage}/${rowsPerPage}`
+  let fetchUrl = `admin/users/${page * rowsPerPage}/${rowsPerPage}`
 
   const queryParams = new URLSearchParams()
 
