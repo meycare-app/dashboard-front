@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import ky from 'ky'
 import { getServerSession } from 'next-auth'
 
-export const api = ky.extend({
+export const api = ky.create({
   prefixUrl: process.env.API_URL || '',
   hooks: {
     beforeRequest: [
