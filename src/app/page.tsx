@@ -1,13 +1,11 @@
-import { Navbar } from '@/components/menu/Navbar'
-import LoginPage from './login/page'
+import { redirect } from 'next/navigation'
 
 export default function Home() {
+  redirect('/login')
+
   return (
     <>
-      <Navbar />
-      <main className="mx-auto mt-8 w-4/5">
-        <LoginPage />
-      </main>
+      <main className="mx-auto mt-8 w-4/5">Sistema de Pontos</main>
     </>
   )
 }

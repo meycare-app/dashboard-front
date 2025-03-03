@@ -1,9 +1,19 @@
-export async function fetchWrapper<T = unknown>(
-  input: string | URL | globalThis.Request,
-  init?: RequestInit,
-) {
-  const data = await fetch(`http://3.225.87.60:3000${input}`, init)
-  const result = await data.json()
+'use server'
 
-  return result as T
-}
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import ky from 'ky'
+import { getServerSession } from 'next-auth'
+
+export const api = ky.extend({
+  prefixUrl: process.env.API_URL || '',
+  hooks: {
+    beforeRequest: [
+      async (request) => {
+        const session = await getServerSession(authOptions)
+        const accessToken = session?.user.token
+
+        request.headers.set('Authorization', `Bearer ${accessToken}`)
+      },
+    ],
+  },
+})

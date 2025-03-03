@@ -1,3 +1,5 @@
+'use server'
+
 import { getAdminProfile } from '@/http/users/get-admin-profile'
 
 export async function getAdminProfileAction() {
