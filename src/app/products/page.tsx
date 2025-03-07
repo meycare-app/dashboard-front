@@ -12,7 +12,7 @@ export default function ProductPage() {
     router.push('/products/add-product')
   }
 
-  const mockData = [
+  /* const mockData = [
     {
       id: 1,
       name: 'Smartphone Galaxy S21',
@@ -218,7 +218,7 @@ export default function ProductPage() {
       value: 1500,
       stock: 5,
     },
-  ]
+  ] */
 
   return (
     <>
@@ -233,7 +233,7 @@ export default function ProductPage() {
           <h1 className="mb-2 mt-32 text-4xl">Produtos</h1>
           <Divider />
         </div>
-        <ProductList data={mockData} />
+        <ProductList />
       </main>
     </>
   )

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Paper,
   Table,
@@ -8,10 +8,10 @@ import {
   TablePagination,
   TableRow,
   IconButton,
-  Menu,
-  MenuItem,
   createTheme,
   ThemeProvider,
+  MenuItem,
+  Menu,
 } from '@mui/material'
 import { ptBR } from '@mui/material/locale'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -27,20 +27,20 @@ import {
   SortingState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useSession } from 'next-auth/react'
 
 type Product = {
-  id: number
+  id: string
   name: string
   description: string
-  value: number
+  price: number
   stock: number
+  points: number
+  // outros campos se necessário
 }
 
-type ProductListProps = {
-  data: Product[]
-}
-
-export default function ProductList({ data }: ProductListProps) {
+export default function ProductList() {
+  // Estados para filtro, ordenação e paginação
   const [search, setSearch] = useState('')
   const [valueRange, setValueRange] = useState<string>('')
   const [dateRange, setDateRange] = useState<string>('')
@@ -49,16 +49,51 @@ export default function ProductList({ data }: ProductListProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 1,
   })
 
+  // Estados para os produtos, total e loading
+  const [products, setProducts] = useState<Product[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const { data: session } = useSession()
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true)
+      const init = pagination.pageIndex * pagination.pageSize
+      const limit = pagination.pageSize
+      try {
+        const res = await fetch(
+          `http://3.225.87.60:3000/admin/products?init=${init}&limit=${limit}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NGEwZThhOS1kZjMxLTQwOWMtYmM1Zi1jZTFiNzA3YWMxNzMiLCJpYXQiOjE3NDEzMTU5MjcsImV4cCI6MTc0MTMzMDMyN30.y3yNDP8hehueqcRJ6D9uGNRO4LjbJKB9AvKmlhSWONY`,
+            },
+          },
+        )
+        const json = await res.json()
+        setProducts(json.results)
+        setTotal(json.total)
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [pagination.pageIndex, pagination.pageSize])
+
   const minValue = useMemo(
-    () => Math.min(...data.map((item) => item.value)),
-    [data],
+    () =>
+      products.length ? Math.min(...products.map((item) => item.price)) : 0,
+    [products],
   )
   const maxValue = useMemo(
-    () => Math.max(...data.map((item) => item.value)),
-    [data],
+    () =>
+      products.length ? Math.max(...products.map((item) => item.price)) : 0,
+    [products],
   )
 
   const intervals = useMemo(() => {
@@ -95,7 +130,7 @@ export default function ProductList({ data }: ProductListProps) {
       )
       if (selectedInterval) {
         filters.push({
-          id: 'value',
+          id: 'price',
           value: [selectedInterval.min, selectedInterval.max],
         })
       }
@@ -115,15 +150,16 @@ export default function ProductList({ data }: ProductListProps) {
       cell: (info) => info.getValue(),
     },
     {
-      accessorKey: 'value',
+      accessorKey: 'price',
       header: 'Valor (Real/Pontos)',
       cell: (info) => {
-        const val = info.getValue<number>()
-        return `R$${val} / 5000 pontos`
+        const price = info.getValue<number>()
+        const row = info.row.original as Product
+        return `R$${price} / ${row.points} pontos`
       },
       filterFn: (row, columnId, filterValue: [number, number]) => {
-        const rowValue = row.getValue<number>(columnId)
-        return rowValue >= filterValue[0] && rowValue <= filterValue[1]
+        const rowPrice = row.getValue<number>(columnId)
+        return rowPrice >= filterValue[0] && rowPrice <= filterValue[1]
       },
     },
     {
@@ -142,13 +178,9 @@ export default function ProductList({ data }: ProductListProps) {
   ]
 
   const table = useReactTable({
-    data,
+    data: products,
     columns,
-    state: {
-      sorting,
-      columnFilters,
-      pagination,
-    },
+    state: { sorting, columnFilters, pagination },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
@@ -230,47 +262,53 @@ export default function ProductList({ data }: ProductListProps) {
 
       <ThemeProvider theme={theme}>
         <Paper className="my-10 pt-4">
-          <Table stickyHeader>
-            <TableHead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableCell key={header.id}>
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                    </TableCell>
+          {loading ? (
+            <div className="p-4 text-center">Carregando produtos...</div>
+          ) : (
+            <>
+              <Table stickyHeader>
+                <TableHead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableCell key={header.id}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))}
-            </TableHead>
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
+                </TableHead>
+                <TableBody>
+                  {table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                </TableBody>
+              </Table>
 
-          <TablePagination
-            component="div"
-            count={data.length}
-            page={table.getState().pagination.pageIndex}
-            rowsPerPage={table.getState().pagination.pageSize}
-            onPageChange={(_event, newPage) => table.setPageIndex(newPage)}
-            onRowsPerPageChange={(event) => {
-              table.setPageSize(parseInt(event.target.value, 10))
-            }}
-          />
+              <TablePagination
+                component="div"
+                count={total}
+                page={table.getState().pagination.pageIndex}
+                rowsPerPage={table.getState().pagination.pageSize}
+                onPageChange={(_event, newPage) => table.setPageIndex(newPage)}
+                onRowsPerPageChange={(event) => {
+                  table.setPageSize(parseInt(event.target.value, 10))
+                }}
+              />
+            </>
+          )}
         </Paper>
       </ThemeProvider>
     </>
