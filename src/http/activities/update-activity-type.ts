@@ -1,3 +1,5 @@
+'use server'
+
 import { api } from '@/utils/fetcher/fetchWrapper'
 import { revalidateTag } from 'next/cache'
 
