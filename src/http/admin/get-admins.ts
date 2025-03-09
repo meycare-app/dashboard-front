@@ -1,3 +1,5 @@
+'use server'
+
 import { AdminData } from '@/app/adminControl/types'
 import { api } from '@/utils/fetcher/fetchWrapper'
 
