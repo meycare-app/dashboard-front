@@ -4,13 +4,14 @@ import { Metadata } from 'next'
 import { AdminsTable } from './admins-table'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '../api/auth/[...nextauth]/route'
 
 export const metadata: Metadata = {
   title: 'Controle dos Administradores',
 }
 
 export default async function AdminControl() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
   const role = session?.user.role
 
