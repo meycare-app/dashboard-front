@@ -7,10 +7,13 @@ import { Sidebar } from './Sidebar'
 import { useState } from 'react'
 import { IconButton } from '@mui/material'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 export function Navbar() {
   const [sideBarOpen, setSideBarOpen] = useState(false)
   const path = usePathname()
+  const session = useSession()
+  const role = session.data?.user.role
 
   const sidebarData = [
     {
@@ -27,11 +30,13 @@ export function Navbar() {
       title: 'Controle dos Administradores',
       link: '/adminControl',
       isActive: path === '/adminControl',
+      hidden: role !== 'MASTER',
     },
     {
       title: 'Cadastro dos Administradores',
       link: '/register',
       isActive: path === '/register',
+      hidden: role !== 'MASTER',
     },
     {
       title: 'Histórico de Vendas',

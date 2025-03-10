@@ -8,6 +8,7 @@ interface UserResponse {
   refreshTokenExpiresIn: string;
   adminWithoutPassword: {
     id: string;
+    role: string;
   }
 }
 
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         if (user && user.token) {
           return {
             id: user.adminWithoutPassword.id,
+            role: user.adminWithoutPassword.role,
             token: user.token,
             tokenExpires: new Date(user.tokenExpiresIn).getTime(),
             refreshToken: user.refreshToken,
@@ -109,6 +111,7 @@ export const authOptions: NextAuthOptions = {
           tokenExpires: user.tokenExpires,
           refreshToken: user.refreshToken,
           refreshTokenExpires: user.refreshTokenExpires,
+          role: user.role,
         };
       }
 
@@ -125,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         session.user = {
           email: token.email,
           token: token.token as string,
+          role: token.role as string,
         };
         session.tokenExpires = token.tokenExpires as number;
         session.refreshToken = token.refreshToken as string;

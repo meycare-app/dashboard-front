@@ -18,14 +18,14 @@ export function Sidebar({ open, setOpen, data }: SidebarProps) {
         </IconButton>
       </div>
 
-      <div className="flex-1 bg-white py-10 shadow">
+      <div className="w-64 flex-1 bg-white py-10 shadow">
         <nav className="flex flex-col px-2">
           {data.map((item, index) => {
             return (
               <Link
                 key={index}
                 href={item.link}
-                className={`border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 ${item.isActive ? 'text-[#B6821C]' : 'hover:text-[#B6821C]'}`}
+                className={`border-b border-[#D0CDC4] border-opacity-60 px-3 py-3 transition-colors duration-300 ${item.isActive ? 'text-[#B6821C]' : 'hover:text-[#B6821C]'} ${item.hidden && 'hidden'}`}
               >
                 {item.title}
               </Link>
