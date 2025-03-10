@@ -3,6 +3,7 @@ interface SidebarMenuData {
     title: string
     link: string
     isActive: boolean
+    hidden?: boolean
   }[]
 }
 
