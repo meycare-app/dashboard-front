@@ -127,7 +127,7 @@ const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
                 {label}
               </Typography>
               <Typography variant="caption" color="textSecondary">
-                SVG, PNG, JPG (máx. {maxSizeMB}MB)
+                PNG, JPG (máx. {maxSizeMB}MB)
               </Typography>
             </>
           ) : (

@@ -8,12 +8,14 @@ import {
   TablePagination,
   TableRow,
   IconButton,
-  createTheme,
-  ThemeProvider,
   MenuItem,
   Menu,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from '@mui/material'
-import { ptBR } from '@mui/material/locale'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   ColumnDef,
@@ -21,13 +23,16 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   PaginationState,
+  Row,
   SortingState,
   useReactTable,
 } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import TextInput from '@/components/mui/TextInput'
+import MyButton from '@/components/mui/Button'
 
 type Product = {
   id: string
@@ -36,11 +41,9 @@ type Product = {
   price: number
   stock: number
   points: number
-  // outros campos se necessário
 }
 
 export default function ProductList() {
-  // Estados para filtro, ordenação e paginação
   const [search, setSearch] = useState('')
   const [valueRange, setValueRange] = useState<string>('')
   const [dateRange, setDateRange] = useState<string>('')
@@ -49,16 +52,16 @@ export default function ProductList() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 1,
+    pageSize: 10,
   })
 
-  // Estados para os produtos, total e loading
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const { data: session } = useSession()
 
   useEffect(() => {
+    if (!session) return
     const fetchProducts = async () => {
       setLoading(true)
       const init = pagination.pageIndex * pagination.pageSize
@@ -69,7 +72,7 @@ export default function ProductList() {
           {
             method: 'GET',
             headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NGEwZThhOS1kZjMxLTQwOWMtYmM1Zi1jZTFiNzA3YWMxNzMiLCJpYXQiOjE3NDEzMTU5MjcsImV4cCI6MTc0MTMzMDMyN30.y3yNDP8hehueqcRJ6D9uGNRO4LjbJKB9AvKmlhSWONY`,
+              Authorization: `Bearer ${session.user.token}`,
             },
           },
         )
@@ -83,16 +86,16 @@ export default function ProductList() {
       }
     }
     fetchProducts()
-  }, [pagination.pageIndex, pagination.pageSize])
+  }, [pagination.pageIndex, pagination.pageSize, session])
 
   const minValue = useMemo(
     () =>
-      products.length ? Math.min(...products.map((item) => item.price)) : 0,
+      products?.length ? Math.min(...products.map((item) => item.price)) : 0,
     [products],
   )
   const maxValue = useMemo(
     () =>
-      products.length ? Math.max(...products.map((item) => item.price)) : 0,
+      products?.length ? Math.max(...products.map((item) => item.price)) : 0,
     [products],
   )
 
@@ -173,7 +176,7 @@ export default function ProductList() {
     {
       id: 'actions',
       header: '',
-      cell: ActionsCell,
+      cell: (info) => <ActionsCell row={info.row} />,
     },
   ]
 
@@ -181,16 +184,14 @@ export default function ProductList() {
     data: products,
     columns,
     state: { sorting, columnFilters, pagination },
+    manualPagination: true,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   })
-
-  const theme = createTheme({}, ptBR)
 
   return (
     <>
@@ -252,71 +253,78 @@ export default function ProductList() {
           />
         </svg>
 
-        <button
-          onClick={handleFilter}
-          className="h-10 self-end rounded-lg bg-yellow-600 px-6 py-2 font-medium text-white shadow-md transition hover:bg-yellow-700"
-        >
-          FILTRAR
-        </button>
+        <div className="flex h-full">
+          <button
+            onClick={handleFilter}
+            className="h-10 self-end rounded-lg bg-yellow-600 px-6 py-2 font-medium text-white shadow-md transition hover:bg-yellow-700"
+          >
+            FILTRAR
+          </button>
+        </div>
       </div>
 
-      <ThemeProvider theme={theme}>
-        <Paper className="my-10 pt-4">
-          {loading ? (
-            <div className="p-4 text-center">Carregando produtos...</div>
-          ) : (
-            <>
-              <Table stickyHeader>
-                <TableHead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableCell key={header.id}>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHead>
-                <TableBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+      <Paper className="my-10 pt-4">
+        {loading ? (
+          <div className="p-4 text-center">Carregando produtos...</div>
+        ) : (
+          <>
+            <Table stickyHeader>
+              <TableHead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableCell key={header.id}>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHead>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-              <TablePagination
-                component="div"
-                count={total}
-                page={table.getState().pagination.pageIndex}
-                rowsPerPage={table.getState().pagination.pageSize}
-                onPageChange={(_event, newPage) => table.setPageIndex(newPage)}
-                onRowsPerPageChange={(event) => {
-                  table.setPageSize(parseInt(event.target.value, 10))
-                }}
-              />
-            </>
-          )}
-        </Paper>
-      </ThemeProvider>
+            <TablePagination
+              component="div"
+              count={total}
+              page={table.getState().pagination.pageIndex}
+              rowsPerPage={table.getState().pagination.pageSize}
+              onPageChange={(_event, newPage) => table.setPageIndex(newPage)}
+              onRowsPerPageChange={(event) => {
+                table.setPageSize(parseInt(event.target.value, 10))
+              }}
+            />
+          </>
+        )}
+      </Paper>
     </>
   )
 }
 
-function ActionsCell() {
+type ActionsCellProps = {
+  row: Row<Product>
+}
+
+function ActionsCell({ row }: ActionsCellProps) {
+  const router = useRouter()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [openUpdateModal, setOpenUpdateModal] = useState(false)
+  const [newStock, setNewStock] = useState('')
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -326,15 +334,55 @@ function ActionsCell() {
     setAnchorEl(null)
   }
 
-  const open = Boolean(anchorEl)
+  const handleEdit = () => {
+    handleClose()
+    router.push(`/products/edit-product/${row.original.id}`)
+  }
+
+  const handleOpenUpdateModal = () => {
+    handleClose()
+    setOpenUpdateModal(true)
+  }
+
+  const handleCloseUpdateModal = () => {
+    setOpenUpdateModal(false)
+    setNewStock('')
+  }
+
+  const handleUpdateStock = async () => {
+    const formData = new FormData()
+    formData.append('stock', newStock)
+
+    try {
+      const res = await fetch(
+        `http://3.225.87.60:3000/admin/products/${row.original.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NGEwZThhOS1kZjMxLTQwOWMtYmM1Zi1jZTFiNzA3YWMxNzMiLCJpYXQiOjE3NDE2NTUyNDAsImV4cCI6MTc0MTY2OTY0MH0.g7bSxzHUV8_hgzYSDhFBheEIPfOzpf2UOFJ3CZmEPSc`,
+          },
+          body: formData,
+        },
+      )
+      if (!res.ok) {
+        console.error('Erro ao atualizar o estoque')
+      } else {
+        console.log('Estoque atualizado com sucesso')
+      }
+    } catch (error) {
+      console.error('Erro na requisição:', error)
+    } finally {
+      handleCloseUpdateModal()
+    }
+  }
 
   return (
     <>
       <IconButton onClick={handleOpen}>
         <MoreVertIcon />
       </IconButton>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={handleClose} className="flex gap-2">
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        <MenuItem onClick={handleEdit} className="flex gap-2">
           <svg
             width="16"
             height="15"
@@ -349,22 +397,7 @@ function ActionsCell() {
           </svg>
           Editar
         </MenuItem>
-        <MenuItem onClick={handleClose} className="flex gap-2">
-          <svg
-            width="12"
-            height="15"
-            viewBox="0 0 12 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1.00002 13.3333C1.00002 14.25 1.75002 15 2.66669 15H9.33335C10.25 15 11 14.25 11 13.3333V3.33333H1.00002V13.3333ZM3.05002 7.4L4.22502 6.225L6.00002 7.99167L7.76669 6.225L8.94169 7.4L7.17502 9.16667L8.94169 10.9333L7.76669 12.1083L6.00002 10.3417L4.23335 12.1083L3.05835 10.9333L4.82502 9.16667L3.05002 7.4ZM8.91669 0.833333L8.08335 0H3.91669L3.08335 0.833333H0.166687V2.5H11.8334V0.833333H8.91669Z"
-              fill="#D32F2F"
-            />
-          </svg>
-          Excluir
-        </MenuItem>
-        <MenuItem onClick={handleClose} className="flex gap-2">
+        <MenuItem onClick={handleOpenUpdateModal} className="flex gap-2">
           <svg
             width="19"
             height="19"
@@ -380,6 +413,34 @@ function ActionsCell() {
           Atualizar estoque
         </MenuItem>
       </Menu>
+      <Dialog
+        open={openUpdateModal}
+        onClose={handleCloseUpdateModal}
+        disablePortal
+      >
+        <DialogTitle>Atualizar Estoque</DialogTitle>
+        <DialogContentText className="mx-8">
+          Aqui você pode atualizar o estoque do item!
+        </DialogContentText>
+        <DialogContent>
+          <TextInput
+            type="number"
+            onChange={(e) => setNewStock(e.target.value)}
+            label="Quantidade em estoque"
+            value={newStock}
+          />
+        </DialogContent>
+        <DialogActions>
+          <MyButton
+            category="destructive"
+            outlined
+            onClick={handleCloseUpdateModal}
+          >
+            FECHAR
+          </MyButton>
+          <MyButton onClick={handleUpdateStock}>SALVAR</MyButton>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { Sidebar } from './Sidebar'
 import { useState } from 'react'
 import { IconButton } from '@mui/material'
-import { signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 
 export function Navbar() {
@@ -61,12 +60,6 @@ export function Navbar() {
 
           <Image src={logo} alt="Logo" width={107} />
         </div>
-        <button
-          onClick={() => signOut()}
-          className="rounded bg-red-500 px-4 py-2 text-white"
-        >
-          Sair
-        </button>
 
         <Sidebar
           open={sideBarOpen}
