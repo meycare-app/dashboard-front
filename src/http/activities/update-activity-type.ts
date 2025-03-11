@@ -1,4 +1,6 @@
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
+'use server'
+
+import { api } from '@/utils/fetcher/fetchWrapper'
 import { revalidateTag } from 'next/cache'
 
 interface UpdateActivityTypeRequest {
@@ -22,17 +24,14 @@ export async function updateActivityType({
   points,
   activityTypeId,
 }: UpdateActivityTypeRequest) {
-  const response = await fetchWrapper<UpdateActivityTypeResponse>(
-    `/activities/activity-type/${activityTypeId}`,
-    {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NmU1NDEyMC00YTk5LTQxMmMtODUxMy05YzFlM2I4MDkzNzMiLCJpYXQiOjE3MzkyMzE4MDAsImV4cCI6MTczOTI0NjIwMH0.A8dj9wTOj77pIDGJDxjomZKIm1ZUv6LHzO225339zLA`,
+  const response = await api
+    .put<UpdateActivityTypeResponse>(
+      `activities/activity-type/${activityTypeId}`,
+      {
+        json: { name, points },
       },
-      body: JSON.stringify({ name, points }),
-    },
-  )
+    )
+    .json()
 
   revalidateTag('pointsTableData')
 

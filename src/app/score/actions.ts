@@ -66,7 +66,7 @@ export const getPointsTableData = async ({
   rowsPerPage,
   globalFilter,
 }: GetPointsTableProps) => {
-  let fetchUrl = `/activities/activity-type/${page * rowsPerPage}/${rowsPerPage}`
+  let fetchUrl = `activities/activity-type/${page * rowsPerPage}/${rowsPerPage}`
 
   if (globalFilter) {
     fetchUrl += `?name=${globalFilter}`

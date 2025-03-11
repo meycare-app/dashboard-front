@@ -1,4 +1,6 @@
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
+'use server'
+
+import { api } from '@/utils/fetcher/fetchWrapper'
 
 interface CommonUsersRequest {
   url: string
@@ -20,12 +22,11 @@ interface CommonUsersResponse {
 }
 
 export async function getCommonUsers({ url }: CommonUsersRequest) {
-  const commonUsersData = await fetchWrapper<CommonUsersResponse>(url, {
-    headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NmU1NDEyMC00YTk5LTQxMmMtODUxMy05YzFlM2I4MDkzNzMiLCJpYXQiOjE3MzkyMzE4MDAsImV4cCI6MTczOTI0NjIwMH0.A8dj9wTOj77pIDGJDxjomZKIm1ZUv6LHzO225339zLA`,
-    },
-    next: { tags: ['commonUsers'] },
-  })
+  const commonUsersData = await api
+    .get<CommonUsersResponse>(url, {
+      next: { tags: ['commonUsers'] },
+    })
+    .json()
 
   return commonUsersData
 }

@@ -1,9 +1,9 @@
+import { sliceDecimals } from '@/utils/sliceDecimals'
 import { Chip, Paper, SvgIconProps } from '@mui/material'
 
 interface CardData {
   title: string
   count: number
-  lastMonthComparison: string
   percentage: number
   subtitle?: string
   mostSaleType?: string
@@ -51,9 +51,9 @@ export function Card({ icon: Icon, data }: CardProps) {
 
         <span className="flex items-center gap-1 pt-1.5">
           <Chip
-            label={`${data.lastMonthComparison === 'up' ? '+' : '-'}${data.percentage}%`}
+            label={`${data.percentage > 0 ? '+' : ''}${sliceDecimals(data.percentage)}%`}
             size="small"
-            className={`bg-opacity-85 px-1.5 ${data.lastMonthComparison === 'up' ? 'bg-[#9DF4A1D9] text-[#197D1D]' : 'bg-[#F49D9D] text-[#7D1919]'}`}
+            className={`bg-opacity-85 px-1.5 ${data.percentage > 0 ? 'bg-[#9DF4A1D9] text-[#197D1D]' : data.percentage < 0 ? 'bg-[#F49D9D] text-[#7D1919]' : 'bg-[#dbdbd9] text-[#494948]'}`}
           />
           <p className="text-sm text-black/60">No último mês</p>
         </span>

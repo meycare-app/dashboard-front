@@ -1,4 +1,6 @@
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
+'use server'
+
+import { api } from '@/utils/fetcher/fetchWrapper'
 
 interface Activities {
   id: string
@@ -52,15 +54,11 @@ interface CommonUserResponse {
 }
 
 export async function getCommonUserInfo({ id }: { id: string }) {
-  const commonUserInfo = await fetchWrapper<CommonUserResponse>(
-    `/admin/users/${id}`,
-    {
-      headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NmU1NDEyMC00YTk5LTQxMmMtODUxMy05YzFlM2I4MDkzNzMiLCJpYXQiOjE3MzkyMzE4MDAsImV4cCI6MTczOTI0NjIwMH0.A8dj9wTOj77pIDGJDxjomZKIm1ZUv6LHzO225339zLA`,
-      },
+  const commonUserInfo = await api
+    .get<CommonUserResponse>(`admin/users/${id}`, {
       next: { tags: ['getCommonUserInfo'] },
-    },
-  )
+    })
+    .json()
 
   return commonUserInfo
 }

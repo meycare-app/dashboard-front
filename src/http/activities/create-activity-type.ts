@@ -1,4 +1,6 @@
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
+'use server'
+
+import { api } from '@/utils/fetcher/fetchWrapper'
 import { revalidateTag } from 'next/cache'
 
 interface CreateActivityTypeRequest {
@@ -17,17 +19,11 @@ interface CreateActivityTypeResponse {
 }
 
 export async function createActivityType(data: CreateActivityTypeRequest) {
-  const response = await fetchWrapper<CreateActivityTypeResponse>(
-    '/activities/activity-type',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NmU1NDEyMC00YTk5LTQxMmMtODUxMy05YzFlM2I4MDkzNzMiLCJpYXQiOjE3MzkyMzE4MDAsImV4cCI6MTczOTI0NjIwMH0.A8dj9wTOj77pIDGJDxjomZKIm1ZUv6LHzO225339zLA`,
-      },
-      body: JSON.stringify(data),
-    },
-  )
+  const response = await api
+    .post<CreateActivityTypeResponse>('activities/activity-type', {
+      json: data,
+    })
+    .json()
 
   revalidateTag('pointsTableData')
 

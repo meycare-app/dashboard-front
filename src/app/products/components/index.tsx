@@ -1,3 +1,4 @@
+// ProductList.tsx
 import React, { useState, useEffect, useMemo } from 'react'
 import {
   Paper,
@@ -33,6 +34,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import TextInput from '@/components/mui/TextInput'
 import MyButton from '@/components/mui/Button'
+import { DateRange } from 'react-day-picker'
+import { DateRangePicker } from './DateRangePicker'
 
 type Product = {
   id: string
@@ -41,12 +44,14 @@ type Product = {
   price: number
   stock: number
   points: number
+  created_at: string
 }
 
 export default function ProductList() {
   const [search, setSearch] = useState('')
   const [valueRange, setValueRange] = useState<string>('')
-  const [dateRange, setDateRange] = useState<string>('')
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -138,6 +143,12 @@ export default function ProductList() {
         })
       }
     }
+    if (dateRange && dateRange.from && dateRange.to) {
+      filters.push({
+        id: 'created_at',
+        value: [dateRange.from, dateRange.to],
+      })
+    }
     setColumnFilters(filters)
   }
 
@@ -174,6 +185,20 @@ export default function ProductList() {
       },
     },
     {
+      accessorKey: 'created_at',
+      header: 'Data de Criação',
+      cell: (info) => {
+        const date = new Date(info.getValue<string>())
+        return date.toLocaleDateString('pt-BR')
+      },
+      filterFn: (row, columnId, filterValue: [Date, Date]) => {
+        const rowDate = new Date(row.getValue<string>(columnId))
+        const start = filterValue[0]
+        const end = filterValue[1]
+        return rowDate >= start && rowDate <= end
+      },
+    },
+    {
       id: 'actions',
       header: '',
       cell: (info) => <ActionsCell row={info.row} />,
@@ -191,6 +216,11 @@ export default function ProductList() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      columnVisibility: {
+        created_at: false,
+      },
+    },
   })
 
   return (
@@ -231,12 +261,7 @@ export default function ProductList() {
           <label className="absolute left-5 top-[-9px] bg-white px-2 text-xs font-medium text-gray-700">
             Data
           </label>
-          <input
-            type="date"
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="w-[310px] rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm outline-none"
-          />
+          <DateRangePicker date={dateRange} setDate={setDateRange} />
         </div>
 
         <svg
@@ -325,6 +350,7 @@ function ActionsCell({ row }: ActionsCellProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [openUpdateModal, setOpenUpdateModal] = useState(false)
   const [newStock, setNewStock] = useState('')
+  const { data: session } = useSession()
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -353,13 +379,18 @@ function ActionsCell({ row }: ActionsCellProps) {
     const formData = new FormData()
     formData.append('stock', newStock)
 
+    if (!session) {
+      console.error('Usuário não autenticado')
+      return
+    }
+
     try {
       const res = await fetch(
         `http://3.225.87.60:3000/admin/products/${row.original.id}`,
         {
           method: 'PUT',
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NGEwZThhOS1kZjMxLTQwOWMtYmM1Zi1jZTFiNzA3YWMxNzMiLCJpYXQiOjE3NDE2NTUyNDAsImV4cCI6MTc0MTY2OTY0MH0.g7bSxzHUV8_hgzYSDhFBheEIPfOzpf2UOFJ3CZmEPSc`,
+            Authorization: `Bearer ${session.user.token}`,
           },
           body: formData,
         },

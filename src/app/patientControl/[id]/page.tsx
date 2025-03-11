@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function Page({ params }: { params: { id: string } }) {
   const commonUserInfo = await getCommonUserInfo({ id: params.id })
   const activitiesType = await getActivitiesType({
-    url: '/activities/activity-type/0/100',
+    url: 'activities/activity-type/0/99999',
   }).then((res) =>
     res.results.filter(
       (activity) =>

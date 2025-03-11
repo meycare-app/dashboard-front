@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react";
 import MyButton from "../mui/Button";
 import TextInput from "../mui/TextInput";

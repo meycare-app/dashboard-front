@@ -1,4 +1,6 @@
-import { fetchWrapper } from '@/utils/fetcher/fetchWrapper'
+'use server'
+
+import { api } from '@/utils/fetcher/fetchWrapper'
 
 interface UpdateAdminNameRequest {
   adminId: string
@@ -21,18 +23,11 @@ export async function updateAdminName({
   name,
   adminId,
 }: UpdateAdminNameRequest) {
-  const response = await fetchWrapper<UpdateAdminNameResponse>(
-    '/master/profile',
-    {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NGEwZThhOS1kZjMxLTQwOWMtYmM1Zi1jZTFiNzA3YWMxNzMiLCJpYXQiOjE3Mzk5MTczNjYsImV4cCI6MTczOTkzMTc2Nn0.cyTe0zLcrl4TnnMSBE-5PxJWB7lk6bp54zs0eN6C--A',
-      },
-      body: JSON.stringify({ name, adminId }),
-    },
-  )
+  const response = await api
+    .put<UpdateAdminNameResponse>('master/profile', {
+      json: { name, adminId },
+    })
+    .json()
 
   return response
 }
