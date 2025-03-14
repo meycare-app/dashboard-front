@@ -29,7 +29,7 @@ export default function EditProduct() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://3.225.87.60:3000/admin/product/${id}`, {
+      fetch(`${process.env.API_URL}/admin/product/${id}`, {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`,
         },
@@ -55,7 +55,7 @@ export default function EditProduct() {
 
   const handleUpdate = async ({ formData, token }: HandleProductProps) => {
     const response = await fetch(
-      `http://3.225.87.60:3000/admin/products/${id}`,
+      `${process.env.API_URL}/admin/products/${id}`,
       {
         method: 'PUT',
         headers: {

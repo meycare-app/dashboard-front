@@ -1,5 +1,4 @@
-// ProductList.tsx
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Paper,
   Table,
@@ -20,10 +19,8 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getSortedRowModel,
   PaginationState,
   Row,
@@ -49,21 +46,45 @@ type Product = {
 
 export default function ProductList() {
   const [search, setSearch] = useState('')
-  const [valueRange, setValueRange] = useState<string>('')
-
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-
+  const [minPrice, setMinPrice] = useState<number | undefined>(undefined)
+  const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined)
   const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
 
+  const [filterParams, setFilterParams] = useState<{
+    min_date?: string
+    max_date?: string
+    min_price?: number
+    max_price?: number
+  }>({})
+
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const { data: session } = useSession()
+
+  const handleFilter = () => {
+    const newFilters: {
+      min_date?: string
+      max_date?: string
+      min_price?: number
+      max_price?: number
+    } = {}
+
+    if (dateRange && dateRange.from && dateRange.to) {
+      newFilters.min_date = dateRange.from.toISOString()
+      newFilters.max_date = dateRange.to.toISOString()
+    }
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      newFilters.min_price = minPrice * 100
+      newFilters.max_price = maxPrice * 100
+    }
+    setFilterParams(newFilters)
+  }
 
   useEffect(() => {
     if (!session) return
@@ -71,9 +92,29 @@ export default function ProductList() {
       setLoading(true)
       const init = pagination.pageIndex * pagination.pageSize
       const limit = pagination.pageSize
+
+      const queryParams = new URLSearchParams()
+      queryParams.append('init', init.toString())
+      queryParams.append('limit', limit.toString())
+
+      if (filterParams.min_date && filterParams.max_date) {
+        queryParams.append('min_date', filterParams.min_date)
+        queryParams.append('max_date', filterParams.max_date)
+      }
+      if (
+        filterParams.min_price !== undefined &&
+        filterParams.max_price !== undefined
+      ) {
+        queryParams.append('min_price', filterParams.min_price.toString())
+        queryParams.append('max_price', filterParams.max_price.toString())
+      }
+      if (search) {
+        queryParams.append('name', search)
+      }
+
       try {
         const res = await fetch(
-          `http://3.225.87.60:3000/admin/products?init=${init}&limit=${limit}`,
+          `${process.env.API_URL}/admin/products?${queryParams.toString()}`,
           {
             method: 'GET',
             headers: {
@@ -91,66 +132,7 @@ export default function ProductList() {
       }
     }
     fetchProducts()
-  }, [pagination.pageIndex, pagination.pageSize, session])
-
-  const minValue = useMemo(
-    () =>
-      products?.length ? Math.min(...products.map((item) => item.price)) : 0,
-    [products],
-  )
-  const maxValue = useMemo(
-    () =>
-      products?.length ? Math.max(...products.map((item) => item.price)) : 0,
-    [products],
-  )
-
-  const intervals = useMemo(() => {
-    const range = maxValue - minValue
-    const firstThreshold = minValue + range / 3
-    const secondThreshold = minValue + (2 * range) / 3
-    return [
-      {
-        value: 'low',
-        label: `Até R$ ${firstThreshold.toFixed(2)}`,
-        min: minValue,
-        max: firstThreshold,
-      },
-      {
-        value: 'medium',
-        label: `R$ ${firstThreshold.toFixed(2)} - R$ ${secondThreshold.toFixed(2)}`,
-        min: firstThreshold,
-        max: secondThreshold,
-      },
-      {
-        value: 'high',
-        label: `Acima de R$ ${secondThreshold.toFixed(2)}`,
-        min: secondThreshold,
-        max: maxValue,
-      },
-    ]
-  }, [minValue, maxValue])
-
-  const handleFilter = () => {
-    const filters = [{ id: 'name', value: search }]
-    if (valueRange) {
-      const selectedInterval = intervals.find(
-        (interval) => interval.value === valueRange,
-      )
-      if (selectedInterval) {
-        filters.push({
-          id: 'price',
-          value: [selectedInterval.min, selectedInterval.max],
-        })
-      }
-    }
-    if (dateRange && dateRange.from && dateRange.to) {
-      filters.push({
-        id: 'created_at',
-        value: [dateRange.from, dateRange.to],
-      })
-    }
-    setColumnFilters(filters)
-  }
+  }, [pagination.pageIndex, pagination.pageSize, session, filterParams, search])
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -169,20 +151,13 @@ export default function ProductList() {
       cell: (info) => {
         const price = info.getValue<number>()
         const row = info.row.original as Product
-        return `R$${price} / ${row.points} pontos`
-      },
-      filterFn: (row, columnId, filterValue: [number, number]) => {
-        const rowPrice = row.getValue<number>(columnId)
-        return rowPrice >= filterValue[0] && rowPrice <= filterValue[1]
+        return `R$${(price / 100).toFixed(2)} / ${row.points} pontos`
       },
     },
     {
       accessorKey: 'stock',
       header: 'Estoque',
-      cell: (info) => {
-        const val = info.getValue<number>()
-        return `${val} unidades`
-      },
+      cell: (info) => `${info.getValue<number>()} unidades`,
     },
     {
       accessorKey: 'created_at',
@@ -190,12 +165,6 @@ export default function ProductList() {
       cell: (info) => {
         const date = new Date(info.getValue<string>())
         return date.toLocaleDateString('pt-BR')
-      },
-      filterFn: (row, columnId, filterValue: [Date, Date]) => {
-        const rowDate = new Date(row.getValue<string>(columnId))
-        const start = filterValue[0]
-        const end = filterValue[1]
-        return rowDate >= start && rowDate <= end
       },
     },
     {
@@ -208,14 +177,12 @@ export default function ProductList() {
   const table = useReactTable({
     data: products,
     columns,
-    state: { sorting, columnFilters, pagination },
+    state: { sorting, pagination },
     manualPagination: true,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       columnVisibility: {
         created_at: false,
@@ -241,20 +208,35 @@ export default function ProductList() {
 
         <div className="relative">
           <label className="absolute left-5 top-[-9px] bg-white px-2 text-xs font-medium text-gray-700">
-            Valor
+            Valor Min.
           </label>
-          <select
-            value={valueRange}
-            onChange={(e) => setValueRange(e.target.value)}
-            className="w-[310px] rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm outline-none"
-          >
-            <option value="">Selecione o intervalo de valores</option>
-            {intervals.map((interval) => (
-              <option key={interval.value} value={interval.value}>
-                {interval.label}
-              </option>
-            ))}
-          </select>
+          <input
+            type="number"
+            placeholder="Min"
+            value={minPrice}
+            onChange={(e) =>
+              setMinPrice(
+                e.target.value ? parseFloat(e.target.value) : undefined,
+              )
+            }
+            className="w-[150px] rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm outline-none"
+          />
+        </div>
+        <div className="relative">
+          <label className="absolute left-5 top-[-9px] bg-white px-2 text-xs font-medium text-gray-700">
+            Valor Máx.
+          </label>
+          <input
+            type="text"
+            placeholder="Max"
+            value={maxPrice}
+            onChange={(e) =>
+              setMaxPrice(
+                e.target.value ? parseFloat(e.target.value) : undefined,
+              )
+            }
+            className="w-[150px] rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm outline-none"
+          />
         </div>
 
         <div className="relative">
@@ -386,7 +368,7 @@ function ActionsCell({ row }: ActionsCellProps) {
 
     try {
       const res = await fetch(
-        `http://3.225.87.60:3000/admin/products/${row.original.id}`,
+        `${process.env.API_URL}/admin/products/${row.original.id}`,
         {
           method: 'PUT',
           headers: {

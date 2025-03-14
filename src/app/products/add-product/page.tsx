@@ -4,7 +4,7 @@ import { HandleProductProps } from '../edit-product/[id]/page'
 
 export default function AddProduct() {
   const handleCreate = async ({ formData, token }: HandleProductProps) => {
-    const response = await fetch('http://3.225.87.60:3000/admin/products', {
+    const response = await fetch(`${process.env.API_URL}/admin/products`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

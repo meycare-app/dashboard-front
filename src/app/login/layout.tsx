@@ -6,9 +6,9 @@ export default function LoginLayout({ children }: { children: ReactNode }) {
   const cookieStore = cookies()
   const accessToken = cookieStore.get('next-auth.session-token')?.value
 
-  if (accessToken) {
+  /* if (accessToken) {
     redirect('/dashboard')
-  }
+  } */
 
   return <>{children}</>
 }

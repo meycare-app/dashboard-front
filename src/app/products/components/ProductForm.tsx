@@ -53,7 +53,7 @@ export default function ProductForm({
     formData.append('name', name)
     formData.append('description', description)
     formData.append('points', points)
-    formData.append('price', price)
+    formData.append('price', (Number(price) * 100).toString())
     formData.append('stock', stock)
     formData.append('height', height)
     formData.append('width', width)
