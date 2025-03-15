@@ -1,52 +1,55 @@
-import React, { forwardRef } from "react";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
-import CircularProgress from "@mui/material/CircularProgress";
+import React, { forwardRef } from 'react'
+import TextField, { TextFieldProps } from '@mui/material/TextField'
+import { styled } from '@mui/material/styles'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
-  "& .MuiInputBase-root": {
+  width: '100%',
+  '& .MuiInputBase-root': {
     backgroundColor: theme.palette.background.paper,
-    borderRadius: "4px",
+    borderRadius: '4px',
   },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
       borderColor: theme.palette.grey[400],
     },
-    "&:hover fieldset": {
+    '&:hover fieldset': {
       borderColor: theme.palette.primary.main,
     },
-    "&.Mui-focused fieldset": {
+    '&.Mui-focused fieldset': {
       borderColor: theme.palette.primary.main,
     },
-    "& .MuiInputLabel-root": {
+    '& .MuiInputLabel-root': {
       color: theme.palette.text.primary,
     },
   },
-  "& .MuiInputLabel-root": {
+  '& .MuiInputLabel-root': {
     color: theme.palette.text.primary,
-    transform: "translate(14px, -6px) scale(0.75)",
+    transform: 'translate(14px, -6px) scale(0.75)',
     backgroundColor: theme.palette.background.paper,
-    padding: "0 8px",
+    padding: '0 8px',
     zIndex: 1,
   },
-  "& .MuiInputLabel-shrink": {
-    transform: "translate(14px, -6px) scale(0.75)",
+  '& .MuiInputLabel-shrink': {
+    transform: 'translate(14px, -6px) scale(0.75)',
   },
-}));
+}))
 
 interface CustomTextFieldProps {
-  loading?: boolean;
-  icon?: React.ReactNode;
-  textFieldProps?: TextFieldProps;
-  label?: string;
-  placeholder?: string;
-  name?: string;
-  value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  error?: boolean;
-  helperText?: string | false;
-  type?: string;
+  loading?: boolean
+  icon?: React.ReactNode
+  textFieldProps?: TextFieldProps
+  label?: string
+  placeholder?: string
+  name?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  error?: boolean
+  helperText?: string | false
+  type?: string
+  multiline?: boolean
+  rows?: number
 }
 
 const TextInput = forwardRef<HTMLInputElement, CustomTextFieldProps>(
@@ -64,6 +67,8 @@ const TextInput = forwardRef<HTMLInputElement, CustomTextFieldProps>(
       error,
       helperText,
       type,
+      multiline,
+      rows,
     },
     ref,
   ) => {
@@ -94,9 +99,13 @@ const TextInput = forwardRef<HTMLInputElement, CustomTextFieldProps>(
           ),
         }}
         inputRef={ref}
+        multiline={multiline}
+        rows={rows}
       />
-    );
+    )
   },
-);
+)
 
-export default TextInput;
+TextInput.displayName = 'TextInput'
+
+export default TextInput
